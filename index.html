@@ -1,6 +1,38 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <!-- Meta Pixel Code -->
+<script>
+
+!function(f,b,e,v,n,t,s)
+
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+
+if(!f.fbq)f.fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+
+n.queue=[];t=b.createElement(e);t.async=!0;
+
+t.src=v;s=b.getElementsByTagName(e)[0];
+
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+
+'https://connect.facebook.net/en_US/fbevents.js');
+
+fbq('init', '2002048083870671');
+
+fbq('track', 'PageView');
+
+</script>
+
+<noscript>
+
+<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2002048083870671&ev=PageView&noscript=1"/>
+
+</noscript>
+
+<!-- End Meta Pixel Code -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -198,18 +230,7 @@
 </head>
 <body>
 
-  <!-- Meta Pixel (opcional): cole seu pixel oficial abaixo e defina o ID em CONFIG.pixelId -->
-  <!--
-  <script>
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js'); fbq('init','COLOQUE_SEU_PIXEL_ID'); fbq('track','PageView');
-  </script>
-  <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=COLOQUE_SEU_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
-  -->
+  
 
   <!-- ========= HERO ========= -->
   <header class="hero container fade-in-up">
@@ -376,7 +397,7 @@
     // ========= CONFIG =========
     const CONFIG = {
       whatsappNumber: '5577999779797', // <-- SEU NÚMERO COM DDI + DDD (somente dígitos)
-      pixelId: '',                     // <-- Cole seu Pixel ID se for usar fbq
+      pixelId: '2002048083870671',                     // <-- Cole seu Pixel ID se for usar fbq
       countdownKey: 'sf_endTime'       // localStorage key
     };
 

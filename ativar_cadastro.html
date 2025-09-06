@@ -1,6 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+   <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '2002048083870671');
+  fbq('track', 'PageView');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=2002048083870671&ev=PageView&noscript=1"/>
+  </noscript>
+  <!-- End Meta Pixel Code -->
+   
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -185,32 +204,20 @@
     <div class="sec">🔒 Seus dados estão protegidos e criptografados</div>
   </div>
 
-  <!-- Meta Pixel (carrega lib) -->
-  <script>
-  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  </script>
-  <noscript>
-    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=COLOQUESEUPIXELIDAQUI&ev=PageView&noscript=1"/>
-  </noscript>
-
   <script>
     // CONFIG
     const CONFIG = {
       whatsappNumber: '5577999779797', // altere para seu número
-      pixelId: 'COLOQUESEUPIXELIDAQUI', // seu Pixel ID
+      pixelId: '2002048083870671', // seu Pixel ID
       successPage: 'cadastro_confirmado.html'
     };
 
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
-      // Inicia Pixel com ID configurável
-      if (typeof fbq !== 'undefined' && CONFIG.pixelId && CONFIG.pixelId !== 'COLOQUESEUPIXELIDAQUI') {
-        fbq('init', CONFIG.pixelId);
-        fbq('track', 'PageView');
-      }
+  // Pixel já está carregado no <head> (evitamos re-init para não duplicar PageView).
+  if (typeof fbq === 'undefined') {
+    console.warn('Meta Pixel não carregado ainda.');
+  }
 
       initForm();
       initProgressBar();
@@ -323,34 +330,51 @@
         source: 'StreamForce Registration'
       };
 
-      try{
-        if(typeof fbq!=='undefined'){
-          fbq('track', 'CompleteRegistration', {
-            content_name: 'StreamForce Registration',
-            content_category: 'Registration',
-            value: 29.90, currency: 'BRL'
-          });
-          fbq('track', 'Purchase', {
-            value: 29.90, currency: 'BRL',
-            content_name: 'StreamForce Premium',
-            content_category: 'Subscription',
-            content_ids: ['streamforce-premium'],
-            num_items: 1
-          });
-          fbq('trackCustom','Registration_Complete',{
-            customer_name:data.nome, customer_email:data.email, customer_phone:data.whatsapp, registrationsource:'landingpage'
-          });
-        }
+      // event_id para futura deduplicação com CAPI
+      const regEventId = 'reg_' + Date.now() + '_' + Math.random().toString(36).slice(2,9);
 
-        await sendToServer(data);
-        await sendToWhatsApp(data);
-        showSuccessAndRedirect();
-      }catch(err){
-        console.error(err);
-        notify('Erro ao processar cadastro. Tente novamente.', 'error');
-        btn.classList.remove('loading'); btn.disabled = false;
-      }
+    if (typeof fbq !== 'undefined') {
+      // SOMENTE CompleteRegistration AQUI (NÃO Purchase)
+      fbq('track', 'CompleteRegistration', {
+        content_name: 'Ativação de Cadastro',
+        content_category: 'Registration',
+        content_ids: [data.transacao || 'no-tx']
+      }, { eventID: regEventId });
+
+      // Evento custom (mantém seu tracking extra)
+      fbq('trackCustom','Registration_Complete',{
+        customer_name: data.nome,
+        customer_email: data.email,
+        customer_phone: data.whatsapp,
+        registrationsource: 'landingpage',
+        timestamp: new Date().toISOString()
+      });
+
+      // salva eventId localmente para uso posterior com CAPI se quiser
+      try { localStorage.setItem('last_event_id', regEventId); } catch(e){}
     }
+
+    try {
+      // mantém sua lógica de envio (simulado/real)
+      if (typeof sendToServer === 'function') await sendToServer(data);
+      if (typeof sendToWhatsApp === 'function') await sendToWhatsApp(data);
+
+      showSuccessAndRedirect(); // sua função atual já faz o redirect para cadastro_confirmado.html
+    } catch(err) {
+      console.error(err);
+      notify('Erro ao processar cadastro. Tente novamente.', 'error');
+      if(btn){ btn.classList.remove('loading'); btn.disabled = false; }
+    }
+  }
+
+  // garante que o form use essa função (caso a binding anterior existisse)
+  (function(){
+    const form = document.getElementById('registrationForm') || document.getElementById('cadastroForm') || document.querySelector('form');
+    if(form){
+      try { form.removeEventListener('submit', handleFormSubmit); } catch(e){}
+      form.addEventListener('submit', handleFormSubmit);
+    }
+  })();
 
     async function sendToServer(payload){
       // Simula uma chamada ao servidor; substitua pela sua API se desejar.

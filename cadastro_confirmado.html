@@ -1,9 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
+  <!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '2002048083870671');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=2002048083870671&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <title>Cadastro Confirmado - StreamForce</title>
   <meta name="color-scheme" content="dark light" />
   <style>
@@ -120,6 +138,14 @@
       <div class="timer-message">Fique atento ao seu WhatsApp!</div>
     </div>
 
+    <div class="instructions">
+      <div class="instructions-title">📋 Próximos passos:</div>
+      <div class="instruction-item"><div class="instruction-number">1</div><div>Aguarde nossa mensagem no WhatsApp com seus dados de acesso</div></div>
+      <div class="instruction-item"><div class="instruction-number">2</div><div>Baixe o aplicativo recomendado para seu dispositivo</div></div>
+      <div class="instruction-item"><div class="instruction-number">3</div><div>Configure usando o tutorial passo a passo que enviaremos</div></div>
+      <div class="instruction-item"><div class="instruction-number">4</div><div>Comece a assistir seus canais favoritos em qualidade 4K!</div></div>
+    </div>
+
     <div class="benefits-reminder">
       <div class="benefits-title">🎉 O que você ganhou:</div>
       <div class="benefits-grid">
@@ -146,40 +172,25 @@
     </div>
   </div>
 
-  <!-- Meta Pixel (lib) -->
-  <script>
-  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  </script>
-  <noscript>
-    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=COLOQUESEUPIXELIDAQUI&ev=PageView&noscript=1"/>
-  </noscript>
-
   <script>
     const CONFIG = {
-      whatsappNumber: '5577999779797',
-      pixelId: 'COLOQUESEUPIXELIDAQUI'
-    };
+    whatsappNumber: '5577999779797'
+  };
 
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof fbq !== 'undefined' && CONFIG.pixelId && CONFIG.pixelId !== 'COLOQUESEUPIXELIDAQUI') {
-        fbq('init', CONFIG.pixelId);
-        fbq('track', 'PageView');
-      }
-      initFinalPixelEvents();
-      initCountdown();
-      initSuccessTracking();
-      initAutoActions();
-      addVisualEffects();
-      initConfetti();
-    });
+  document.addEventListener('DOMContentLoaded', function() {
+    // NÃO inicialize o Pixel aqui — ele já foi iniciado no <head>.
+    // Apenas chame os inits da página:
+    initFinalPixelEvents();   // Dispara Purchase uma única vez
+    initCountdown();
+    initSuccessTracking();
+    initAutoActions();
+    addVisualEffects();
+    initConfetti();
+  });
 
     function initFinalPixelEvents(){
       if(typeof fbq==='undefined') return;
       fbq('track','Purchase',{
-        value:29.90,currency:'BRL',
         content_name:'StreamForce Premium',
         content_category:'Subscription',
         content_ids:['streamforce-premium'],num_items:1
