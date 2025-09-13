@@ -355,6 +355,37 @@ src="https://www.facebook.com/tr?id=1109960830695523&ev=PageView&noscript=1"
         c.style.background = colors[i%colors.length];
       });
     }
+     // 🔑 gerar um event_id único
+  const eventId = 'purchase_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+
+  // 1) Envia para o Pixel (browser)
+  if (window.fbq) {
+    fbq('track', 'Purchase', {
+      currency: 'BRL',
+      value: 0
+    }, { eventID: eventId });
+  }
+
+  // 2) Envia para sua API (server → CAPI)
+  fetch("https://capi-api.onrender.com/event", {  // troque pela sua URL Render se diferente
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      event_name: "Purchase",
+      event_id: eventId,
+      event_source_url: window.location.href,
+      user: {
+        email: "cliente@exemplo.com",   // substituir por email real capturado do form
+        phone: "+5511999999999"         // substituir por telefone real
+      },
+      custom_data: {
+        currency: "BRL",
+        value: 0
+      }
+    })
+  }).then(r => r.json())
+    .then(r => console.log("✅ Evento enviado via API:", r))
+    .catch(err => console.error("❌ Erro ao enviar via API:", err));
   </script>
 </body>
 </html>
