@@ -176,7 +176,7 @@ src="https://www.facebook.com/tr?id=1109960830695523&ev=PageView&noscript=1"
     </div>
     <div class="progress-label"><span>Progresso</span><span id="progress-percent">0%</span></div>
 
-    <form id="registrationForm" novalidate>
+    <form onsubmit="saveUserData(event)" id="registrationForm" novalidate>
       <div class="row full">
         <label for="nome">Nome completo</label>
         <input type="text" id="nome" name="nome" class="form-input" placeholder="Ex.: Maria Silva" required autocomplete="name" />
@@ -216,6 +216,8 @@ src="https://www.facebook.com/tr?id=1109960830695523&ev=PageView&noscript=1"
 
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
+      const eventId = 'evt_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+
   // Pixel já está carregado no <head> (evitamos re-init para não duplicar PageView).
   if (typeof fbq === 'undefined') {
     console.warn('Meta Pixel não carregado ainda.');
@@ -242,6 +244,16 @@ src="https://www.facebook.com/tr?id=1109960830695523&ev=PageView&noscript=1"
         input.addEventListener('blur',  () => { input.style.transform=''; });
       });
     }
+
+    function saveUserData(e) {
+  e.preventDefault();
+
+  localStorage.setItem("user_name", document.getElementById("name").value);
+  localStorage.setItem("user_email", document.getElementById("email").value);
+  localStorage.setItem("user_phone", document.getElementById("phone").value);
+
+  e.target.submit();
+}
 
     let initiatedCheckout = false;
     function maybeInitiateCheckout(){
@@ -530,6 +542,25 @@ Enviado automaticamente pelo sistema StreamForce`;
       // Auto remove em 10s
       setTimeout(()=>{ el.remove(); }, 10000);
     }
+
+
+      fbq('track', 'CompleteRegistration', {}, { eventID: eventId });
+
+  fetch("https://capi-api.onrender.com/event", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      event_name: "CompleteRegistration",
+      event_id: eventId,
+      event_source_url: window.location.href,
+      user: {
+        email: localStorage.getItem("user_email") || "",
+        phone: localStorage.getItem("user_phone") || "",
+        fbp: localStorage.getItem("_fbp") || "",
+        fbc: localStorage.getItem("_fbc") || ""
+      }
+    })
+  });
   </script>
 </body>
 </html>

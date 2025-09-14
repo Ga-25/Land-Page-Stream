@@ -397,6 +397,8 @@ src="https://www.facebook.com/tr?id=1109960830695523&ev=PageView&noscript=1"
 
     // ========= INIT =========
     document.addEventListener('DOMContentLoaded', () => {
+      const eventId = 'evt_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+
       initYear();
       initScrollAnimations();
       initFAQ();
@@ -542,6 +544,20 @@ Pode me enviar uma proposta? 😊`;
 
       window.addEventListener('beforeunload', ()=> clearInterval(timer));
     }
+
+      fetch("https://capi-api.onrender.com/event", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      event_name: "PageView",
+      event_id: eventId,
+      event_source_url: window.location.href,
+      user: {
+        fbp: localStorage.getItem("_fbp") || "",
+        fbc: localStorage.getItem("_fbc") || ""
+      }
+    })
+  });
   </script>
 </body>
 </html>
