@@ -4,7 +4,7 @@
 
    <meta name="facebook-domain-verification" content="j7m8yhp3mxy1suwhcwfmqva53i5lnh" />
 
-<!-- Meta Pixel Code -->
+<!-- Meta Pixel Code (PRINCIPAL + BACKUP) -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -14,13 +14,19 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1109960830695523');
+
+fbq('init', '1109960830695523'); // Pixel principal
+fbq('init', '1243575623768850'); // Pixel backup
 fbq('track', 'PageView');
 </script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1109960830695523&ev=PageView&noscript=1"
-/></noscript>
+<noscript>
+  <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1109960830695523&ev=PageView&noscript=1"/>
+  <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1243575623768850&ev=PageView&noscript=1"/>
+</noscript>
 <!-- End Meta Pixel Code -->
+
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
