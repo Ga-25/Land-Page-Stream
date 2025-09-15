@@ -178,7 +178,6 @@ fbq('track', 'PageView');
   };
 
   document.addEventListener('DOMContentLoaded', function() {
-  const eventId = 'evt_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
 
     // NÃO inicialize o Pixel aqui — ele já foi iniciado no <head>.
     // Apenas chame os inits da página:
@@ -362,23 +361,15 @@ function initFinalPixelEvents(){
       });
     }
 
-  // ---- PIXEL (navegador)
+if (typeof fbq !== 'undefined') {
+  const eventId = 'purchase_' + Date.now() + '_' + Math.floor(Math.random()*100000);
   fbq('track', 'Purchase', {
-    currency: 'BRL',
     content_ids: ['streamforce-premium'],
     content_name: 'StreamForce Premium',
     content_type: 'subscription'
   }, { eventID: eventId });
 
-  // Pixel backup
-fbq('trackSingle', '1243575623768850', 'Purchase', {
-  currency: 'BRL',
-  content_ids: ['streamforce-premium'],
-  content_name: 'StreamForce Premium',
-  content_type: 'subscription'
-}, { eventID: eventId });
-
-  // ---- CAPI (servidor)
+  // CAPI (server)
   fetch("https://capi-api.onrender.com/event", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -386,21 +377,24 @@ fbq('trackSingle', '1243575623768850', 'Purchase', {
       event_name: "Purchase",
       event_id: eventId,
       event_source_url: window.location.href,
-    user: {
-      name: localStorage.getItem("user_name") || "",
-      email: localStorage.getItem("user_email") || "",
-      phone: localStorage.getItem("user_phone") || "",
-      fbp: localStorage.getItem("_fbp") || "",
-      fbc: localStorage.getItem("_fbc") || ""
-    },
+      user: {
+        name: localStorage.getItem("user_name") || "",
+        email: localStorage.getItem("user_email") || "",
+        phone: localStorage.getItem("user_phone") || "",
+        fbp: localStorage.getItem("_fbp") || "",
+        fbc: localStorage.getItem("_fbc") || ""
+      },
       custom_data: {
-        currency: "BRL",
         content_ids: ["streamforce-premium"],
         content_name: "StreamForce Premium",
         content_type: "subscription"
       }
     })
-  });
+  })
+  .then(r => r.json())
+  .then(j => console.log('CAPI resp', j))
+  .catch(e => console.error('CAPI error', e));
+}
   </script>
 </body>
 </html>

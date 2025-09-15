@@ -235,7 +235,7 @@ fbq('track', 'PageView');
       initABTest();
       initAbandonmentRecovery();
       console.log('🚀 Página de cadastro StreamForce carregada');
-      console.log('📊 Pixel ID:', CONFIG.pixelId);
+      console.log('📊 Pixel IDs:', CONFIG.pixelIds);
       console.log('📱 WhatsApp:', CONFIG.whatsappNumber);
     });
 
@@ -251,14 +251,25 @@ fbq('track', 'PageView');
       });
     }
 
-    function saveUserData(e) {
+function saveUserData(e) {
   e.preventDefault();
-
-  localStorage.setItem("user_name", document.getElementById("name").value);
+  localStorage.setItem("user_name", document.getElementById("nome").value);
   localStorage.setItem("user_email", document.getElementById("email").value);
-  localStorage.setItem("user_phone", document.getElementById("phone").value);
+  localStorage.setItem("user_phone", document.getElementById("whatsapp").value);
+
+  // pega cookies do pixel se existirem
+  try {
+    localStorage.setItem("_fbp", getCookie("_fbp") || "");
+    localStorage.setItem("_fbc", getCookie("_fbc") || "");
+  } catch(e){}
 
   e.target.submit();
+}
+
+function getCookie(name){
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
     let initiatedCheckout = false;
@@ -328,70 +339,87 @@ fbq('track', 'PageView');
       return valid;
     }
 
-    async function handleFormSubmit(e){
-      e.preventDefault();
+async function handleFormSubmit(e){
+  e.preventDefault();
 
-      if(!checkSubmissionRate()) return;
+  if(!checkSubmissionRate()) return;
 
-      const inputs = document.querySelectorAll('.form-input[required]');
-      let ok = true;
-      inputs.forEach(i=>{ if(!validateField(i) || i.value.trim()==='') ok = false; });
-      if(!ok){ notify('Por favor, corrija os erros no formulário.', 'error'); return; }
+  const inputs = document.querySelectorAll('.form-input[required]');
+  let ok = true;
+  inputs.forEach(i=>{ if(!validateField(i) || i.value.trim()==='') ok = false; });
+  if(!ok){ notify('Por favor, corrija os erros no formulário.', 'error'); return; }
 
-      const btn = document.getElementById('submitBtn');
-      btn.classList.add('loading'); btn.disabled = true;
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('loading'); btn.disabled = true;
 
-      const data = {
-        nome: document.getElementById('nome').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        whatsapp: document.getElementById('whatsapp').value.trim(),
-        transacao: document.getElementById('transacao').value.trim() || 'N/A',
-        timestamp: new Date().toISOString(),
-        source: 'StreamForce Registration'
-      };
+  const data = {
+    nome: document.getElementById('nome').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    whatsapp: document.getElementById('whatsapp').value.trim(),
+    transacao: document.getElementById('transacao').value.trim() || 'N/A',
+    timestamp: new Date().toISOString(),
+    source: 'StreamForce Registration'
+  };
 
-      // event_id para futura deduplicação com CAPI
-      const regEventId = 'reg_' + Date.now() + '_' + Math.random().toString(36).slice(2,9);
+  // event_id para deduplicação
+  const regEventId = 'reg_' + Date.now() + '_' + Math.random().toString(36).slice(2,9);
 
-    if (typeof fbq !== 'undefined') {
-      // SOMENTE CompleteRegistration AQUI (NÃO Purchase)
-      fbq('track', 'CompleteRegistration', {
-        content_name: 'Ativação de Cadastro',
-        content_category: 'Registration',
-        content_ids: [data.transacao || 'no-tx']
-      }, { eventID: regEventId });
+  // ✅ Pixel (já vai para principal + backup)
+  if (typeof fbq !== 'undefined') {
+    fbq('track', 'CompleteRegistration', {
+      content_name: 'Ativação de Cadastro',
+      content_category: 'Registration',
+      content_ids: [data.transacao || 'no-tx']
+    }, { eventID: regEventId });
 
-      fbq('trackSingle', '1243575623768850', 'CompleteRegistration', {
-  content_name: 'Ativação de Cadastro',
-  content_category: 'Registration',
-  content_ids: [data.transacao || 'no-tx']
-}, { eventID: regEventId });
+    fbq('trackCustom','Registration_Complete',{
+      customer_name: data.nome,
+      customer_email: data.email,
+      customer_phone: data.whatsapp,
+      registrationsource: 'landingpage',
+      timestamp: new Date().toISOString()
+    });
 
-      // Evento custom (mantém seu tracking extra)
-      fbq('trackCustom','Registration_Complete',{
-        customer_name: data.nome,
-        customer_email: data.email,
-        customer_phone: data.whatsapp,
-        registrationsource: 'landingpage',
-        timestamp: new Date().toISOString()
-      });
-
-      // salva eventId localmente para uso posterior com CAPI se quiser
-      try { localStorage.setItem('last_event_id', regEventId); } catch(e){}
-    }
-
-    try {
-      // mantém sua lógica de envio (simulado/real)
-      if (typeof sendToServer === 'function') await sendToServer(data);
-      if (typeof sendToWhatsApp === 'function') await sendToWhatsApp(data);
-
-      showSuccessAndRedirect(); // sua função atual já faz o redirect para cadastro_confirmado.html
-    } catch(err) {
-      console.error(err);
-      notify('Erro ao processar cadastro. Tente novamente.', 'error');
-      if(btn){ btn.classList.remove('loading'); btn.disabled = false; }
-    }
+    try { localStorage.setItem('last_event_id', regEventId); } catch(e){}
   }
+
+  // ✅ CAPI
+  fetch("https://capi-api.onrender.com/event", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      event_name: "CompleteRegistration",
+      event_id: regEventId,
+      event_source_url: window.location.href,
+      user: {
+        name: data.nome,
+        email: data.email,
+        phone: data.whatsapp,
+        fbp: localStorage.getItem("_fbp") || "",
+        fbc: localStorage.getItem("_fbc") || ""
+      },
+      custom_data: {
+        content_ids: [data.transacao || 'no-tx'],
+        content_name: "Ativação de Cadastro"
+      }
+    })
+  })
+  .then(r => r.json())
+  .then(j => console.log("📡 CAPI response:", j))
+  .catch(err => console.error("❌ Erro CAPI:", err));
+
+  // resto do fluxo (WhatsApp, redirect, etc.)
+  try {
+    if (typeof sendToServer === 'function') await sendToServer(data);
+    if (typeof sendToWhatsApp === 'function') await sendToWhatsApp(data);
+
+    showSuccessAndRedirect();
+  } catch(err) {
+    console.error(err);
+    notify('Erro ao processar cadastro. Tente novamente.', 'error');
+    if(btn){ btn.classList.remove('loading'); btn.disabled = false; }
+  }
+}
 
   // garante que o form use essa função (caso a binding anterior existisse)
   (function(){
@@ -555,24 +583,6 @@ Enviado automaticamente pelo sistema StreamForce`;
       setTimeout(()=>{ el.remove(); }, 10000);
     }
 
-
-      fbq('track', 'CompleteRegistration', {}, { eventID: eventId });
-
-  fetch("https://capi-api.onrender.com/event", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      event_name: "CompleteRegistration",
-      event_id: eventId,
-      event_source_url: window.location.href,
-      user: {
-        email: localStorage.getItem("user_email") || "",
-        phone: localStorage.getItem("user_phone") || "",
-        fbp: localStorage.getItem("_fbp") || "",
-        fbc: localStorage.getItem("_fbc") || ""
-      }
-    })
-  });
   </script>
 </body>
 </html>
