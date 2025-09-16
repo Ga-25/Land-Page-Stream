@@ -220,6 +220,7 @@ fbq('track', 'PageView');
       successPage: 'cadastro_confirmado.html'
     };
 
+
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
       const eventId = 'evt_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
@@ -251,20 +252,7 @@ fbq('track', 'PageView');
       });
     }
 
-function saveUserData(e) {
-  e.preventDefault();
-  localStorage.setItem("user_name", document.getElementById("nome").value);
-  localStorage.setItem("user_email", document.getElementById("email").value);
-  localStorage.setItem("user_phone", document.getElementById("whatsapp").value);
 
-  // pega cookies do pixel se existirem
-  try {
-    localStorage.setItem("_fbp", getCookie("_fbp") || "");
-    localStorage.setItem("_fbc", getCookie("_fbc") || "");
-  } catch(e){}
-
-  e.target.submit();
-}
 
 function getCookie(name){
   const value = `; ${document.cookie}`;
@@ -361,6 +349,16 @@ async function handleFormSubmit(e){
     source: 'StreamForce Registration'
   };
 
+    // ✅ Salva no localStorage para a página de confirmação e para CAPI
+  try {
+    localStorage.setItem("user_name", data.nome);
+    localStorage.setItem("user_email", data.email);
+    localStorage.setItem("user_phone", data.whatsapp);
+    localStorage.setItem("transacao", data.transacao);
+    localStorage.setItem("_fbp", getCookie("_fbp") || "");
+    localStorage.setItem("_fbc", getCookie("_fbc") || "");
+  } catch(e){}
+
   // event_id para deduplicação
   const regEventId = 'reg_' + Date.now() + '_' + Math.random().toString(36).slice(2,9);
 
@@ -392,9 +390,9 @@ async function handleFormSubmit(e){
       event_id: regEventId,
       event_source_url: window.location.href,
       user: {
-        name: data.nome,
-        email: data.email,
-        phone: data.whatsapp,
+        name: localStorage.getItem("user_name") || data.nome,
+        email: localStorage.getItem("user_email") || data.email,
+        phone: localStorage.getItem("user_phone") || data.whatsapp,
         fbp: localStorage.getItem("_fbp") || "",
         fbc: localStorage.getItem("_fbc") || ""
       },
