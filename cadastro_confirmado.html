@@ -419,7 +419,9 @@ function firePurchaseEvent(){
     return;
   }
 
-  const eventId = 'purchase_' + Date.now() + '_' + Math.floor(Math.random()*100000);
+  const eventId = localStorage.getItem("purchase_event_id") || 
+                ('purchase_' + Date.now() + '_' + Math.floor(Math.random()*100000));
+  localStorage.setItem("purchase_event_id", eventId);
 
   // Pixel (cliente)
   fbq('track', 'Purchase', {
