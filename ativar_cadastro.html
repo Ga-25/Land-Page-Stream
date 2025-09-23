@@ -379,7 +379,6 @@ async function handleFormSubmit(e){
 
   // event_id para deduplicação
   const regEventId = 'reg_' + Date.now() + '_' + Math.floor(Math.random()*100000);
-  localStorage.setItem("registration_event_id", regEventId);
 
   // ✅ Pixel (já vai para principal + backup)
   if (typeof fbq !== 'undefined') {
@@ -397,7 +396,6 @@ async function handleFormSubmit(e){
       timestamp: new Date().toISOString()
     });
 
-    try { localStorage.setItem('last_event_id', regEventId); } catch(e){}
   }
 
   // ✅ CAPI usando função unificada
