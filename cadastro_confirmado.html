@@ -4,24 +4,6 @@
 
    <meta name="facebook-domain-verification" content="j7m8yhp3mxy1suwhcwfmqva53i5lnh" />
 
-   <script>
-  // capturar fbclid e gravar em cookie _fbc + localStorage
-  (function() {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const fbclid = params.get('fbclid');
-      if (!fbclid) return;
-      // formato recomendado: fb.1.<timestamp>.<fbclid>
-      const fbc = 'fb.1.' + Date.now() + '.' + fbclid;
-      // salva cookie _fbc (2 anos)
-      document.cookie = `_fbc=${encodeURIComponent(fbc)}; path=/; max-age=${60*60*24*365*2}; SameSite=None; Secure`;
-      // salva no localStorage para enviar na CAPI
-      localStorage.setItem('_fbc', fbc);
-      console.log('fbc salvo:', fbc);
-    } catch(e){ console.warn('erro capturar fbclid', e); }
-  })();
-</script>
-
 <!-- Meta Pixel Code (PRINCIPAL + BACKUP) -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -380,33 +362,6 @@ function initFinalPixelEvents(){
       });
     }
 
-function sendCAPIEvent(payload) {
-    const url = "https://capi-api.onrender.com/event";
-
-    try {
-      if (navigator.sendBeacon) {
-        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-        const ok = navigator.sendBeacon(url, blob);
-        console.log('📡 CAPI via sendBeacon =>', ok);
-        return Promise.resolve({ beacon: ok });
-      }
-    } catch(e){
-      console.warn('sendBeacon falhou', e);
-    }
-
-    return fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      keepalive: true
-    })
-    .then(res => res.ok ? res.json().catch(()=>({ ok: true })) : { ok: false, status: res.status })
-    .catch(err => {
-      console.error('❌ CAPI fetch error', err);
-      return { ok: false, error: String(err) };
-    });
-  }
-
 function firePurchaseEvent(){
   // evita disparo múltiplo (por reload)
   if(localStorage.getItem('purchase_fired')) {
@@ -426,35 +381,40 @@ function firePurchaseEvent(){
     content_ids: ['streamforce-premium'],
     content_name: 'StreamForce Premium',
     content_type: 'subscription',
-    value: 25.00,         // opcional, mas útil para otimização
-    currency: 'BRL',
-    order_id: localStorage.getItem("transacao") || "N/A"
+    value: 1.00,         // opcional, mas útil para otimização
+    currency: 'BRL'
   }, { eventID: eventId });
 
   // salva flag para evitar reenvio se a pessoa atualizar a página
   try { localStorage.setItem('purchase_fired', eventId); } catch(e){}
 
-const payload = {
-  event_name: "Purchase",
-  event_id: eventId,
-  event_source_url: window.location.href,
-  user: {
-    name: localStorage.getItem("user_name") || "",
-    email: localStorage.getItem("user_email") || "",
-    phone: localStorage.getItem("user_phone") || "",
-    fbp: localStorage.getItem("_fbp") || "",
-    fbc: localStorage.getItem("_fbc") || ""
-  },
-  custom_data: {
-    content_ids: ["streamforce-premium"],
-    content_name: "StreamForce Premium",
-    content_type: "subscription",
-    value: 25.00,
-    currency: "BRL"
-  }
-};
-
-sendCAPIEvent(payload).then(resp => console.log('📡 CAPI resp', resp));
+  // CAPI -> envia para seu server (server.js irá hashear user_data)
+  fetch("https://capi-api.onrender.com/event", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      event_name: "Purchase",
+      event_id: eventId,
+      event_source_url: window.location.href,
+      user: {
+        name: localStorage.getItem("user_name") || "",
+        email: localStorage.getItem("user_email") || "",
+        phone: localStorage.getItem("user_phone") || "",
+        fbp: localStorage.getItem("_fbp") || "",
+        fbc: localStorage.getItem("_fbc") || ""
+      },
+      custom_data: {
+        content_ids: ["streamforce-premium"],
+        content_name: "StreamForce Premium",
+        content_type: "subscription",
+        value: 25.00,
+        currency: "BRL"
+      }
+    })
+  })
+  .then(r => r.json())
+  .then(j => console.log('📡 CAPI Purchase resp', j))
+  .catch(e => console.error('❌ CAPI Purchase error', e));
 }
 
 
