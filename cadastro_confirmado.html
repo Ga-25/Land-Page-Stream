@@ -408,10 +408,10 @@ function firePurchaseEvent() {
     return;
   }
 
-  // sempre gera um novo event_id (deduplicação pelo Meta)
-  const eventId = 'purchase_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+  // event_id único
+  const purchaseEventId = 'purchase_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
 
-  // Pixel (cliente)
+  // Browser Pixel
   fbq('track', 'Purchase', {
     content_ids: ['streamforce-premium'],
     content_name: 'StreamForce Premium',
@@ -419,11 +419,12 @@ function firePurchaseEvent() {
     value: 25.00,
     currency: 'BRL',
     order_id: localStorage.getItem("transacao") || "N/A"
-  }, { eventID: eventId });
+  }, { eventID: purchaseEventId });
 
+  // CAPI (servidor)
   const payload = {
     event_name: "Purchase",
-    event_id: eventId,
+    event_id: purchaseEventId,
     event_source_url: window.location.href,
     user: {
       name: localStorage.getItem("user_name") || "",

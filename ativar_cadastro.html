@@ -378,27 +378,17 @@ async function handleFormSubmit(e){
   } catch(e){}
 
   // event_id para deduplicação
-  const regEventId = 'reg_' + Date.now() + '_' + Math.floor(Math.random()*100000);
+// event_id único
+const regEventId = 'reg_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
 
-  // ✅ Pixel (já vai para principal + backup)
-  if (typeof fbq !== 'undefined') {
-    fbq('track', 'CompleteRegistration', {
-      content_name: 'Ativação de Cadastro',
-      content_category: 'Registration',
-      content_ids: [data.transacao || 'no-tx']
-    }, { eventID: regEventId });
+// Browser Pixel (vai para principal + backup automaticamente)
+fbq('track', 'CompleteRegistration', {
+  content_name: 'Ativação de Cadastro',
+  content_category: 'Registration',
+  content_ids: [data.transacao || 'no-tx']
+}, { eventID: regEventId });
 
-    fbq('trackCustom','Registration_Complete',{
-      customer_name: data.nome,
-      customer_email: data.email,
-      customer_phone: data.whatsapp,
-      registrationsource: 'landingpage',
-      timestamp: new Date().toISOString()
-    });
-
-  }
-
-  // ✅ CAPI usando função unificada
+// CAPI (servidor) - manda para ambos pixels
 const payload = {
   event_name: "CompleteRegistration",
   event_id: regEventId,
