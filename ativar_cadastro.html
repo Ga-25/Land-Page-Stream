@@ -378,35 +378,51 @@ async function handleFormSubmit(e){
   } catch(e){}
 
   // event_id para deduplicação
-// event_id único
-const regEventId = 'reg_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+  const regEventId = 'reg_' + Date.now() + '_' + Math.random().toString(36).slice(2,9);
 
-// Browser Pixel (vai para principal + backup automaticamente)
-fbq('track', 'CompleteRegistration', {
-  content_name: 'Ativação de Cadastro',
-  content_category: 'Registration',
-  content_ids: [data.transacao || 'no-tx']
-}, { eventID: regEventId });
+  // ✅ Pixel (já vai para principal + backup)
+  if (typeof fbq !== 'undefined') {
+    fbq('track', 'CompleteRegistration', {
+      content_name: 'Ativação de Cadastro',
+      content_category: 'Registration',
+      content_ids: [data.transacao || 'no-tx']
+    }, { eventID: regEventId });
 
-// CAPI (servidor) - manda para ambos pixels
-const payload = {
-  event_name: "CompleteRegistration",
-  event_id: regEventId,
-  event_source_url: window.location.href,
-  user: {
-    name: localStorage.getItem("user_name") || data.nome,
-    email: localStorage.getItem("user_email") || data.email,
-    phone: localStorage.getItem("user_phone") || data.whatsapp,
-    fbp: localStorage.getItem("_fbp") || "",
-    fbc: localStorage.getItem("_fbc") || ""
-  },
-  custom_data: {
-    content_ids: [data.transacao || 'no-tx'],
-    content_name: "Ativação de Cadastro"
+    fbq('trackCustom','Registration_Complete',{
+      customer_name: data.nome,
+      customer_email: data.email,
+      customer_phone: data.whatsapp,
+      registrationsource: 'landingpage',
+      timestamp: new Date().toISOString()
+    });
+
+    try { localStorage.setItem('last_event_id', regEventId); } catch(e){}
   }
-};
 
-sendCAPIEvent(payload).then(resp => console.log('📡 CAPI CompleteRegistration resp', resp));
+  // ✅ CAPI
+  fetch("https://capi-api.onrender.com/event", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      event_name: "CompleteRegistration",
+      event_id: regEventId,
+      event_source_url: window.location.href,
+      user: {
+        name: localStorage.getItem("user_name") || data.nome,
+        email: localStorage.getItem("user_email") || data.email,
+        phone: localStorage.getItem("user_phone") || data.whatsapp,
+        fbp: localStorage.getItem("_fbp") || "",
+        fbc: localStorage.getItem("_fbc") || ""
+      },
+      custom_data: {
+        content_ids: [data.transacao || 'no-tx'],
+        content_name: "Ativação de Cadastro"
+      }
+    })
+  })
+  .then(r => r.json())
+  .then(j => console.log("📡 CAPI response:", j))
+  .catch(err => console.error("❌ Erro CAPI:", err));
 
   // resto do fluxo (WhatsApp, redirect, etc.)
   try {
@@ -582,35 +598,6 @@ Enviado automaticamente pelo sistema StreamForce`;
       // Auto remove em 10s
       setTimeout(()=>{ el.remove(); }, 10000);
     }
-
-
-  function sendCAPIEvent(payload) {
-  const url = "https://capi-api.onrender.com/event";
-
-  try {
-    if (navigator.sendBeacon) {
-      const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-      const ok = navigator.sendBeacon(url, blob);
-      console.log('📡 CAPI via sendBeacon =>', ok);
-      return Promise.resolve({ beacon: ok });
-    }
-  } catch(e){
-    console.warn('sendBeacon falhou', e);
-  }
-
-  return fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    keepalive: true
-  })
-  .then(res => res.ok ? res.json().catch(()=>({ ok: true })) : { ok: false, status: res.status })
-  .catch(err => {
-    console.error('❌ CAPI fetch error', err);
-    return { ok: false, error: String(err) };
-  });
-}
-
 
   </script>
 </body>
