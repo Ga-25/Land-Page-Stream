@@ -383,6 +383,20 @@ function initFinalPixelEvents(){
       });
     }
 
+function getFbc() {
+  // tenta recuperar do localStorage
+  const fbc = localStorage.getItem("_fbc");
+  if (fbc) return fbc;
+
+  // fallback: tenta gerar a partir da URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const fbclid = urlParams.get("fbclid");
+  if (!fbclid) return "";
+  const ts = Math.floor(Date.now() / 1000);
+  return `fb.1.${ts}.${fbclid}`;
+}
+
+
 function sendCAPIEvent(payload) {
   const url = "https://capi-api.onrender.com/event";
 
@@ -434,7 +448,7 @@ function firePurchaseEvent() {
       email: localStorage.getItem("user_email") || "",
       phone: localStorage.getItem("user_phone") || "",
       fbp: localStorage.getItem("_fbp") || "",
-      fbc: localStorage.getItem("_fbc") || ""
+      fbc: getFbc()
     },
     custom_data: {
       content_ids: ["streamforce-premium"],

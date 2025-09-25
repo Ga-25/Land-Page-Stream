@@ -348,6 +348,18 @@ function getCookie(name){
       return valid;
     }
 
+function getFbc() {
+  const stored = localStorage.getItem("_fbc");
+  if (stored) return stored;
+
+  // fallback pela URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const fbclid = urlParams.get("fbclid");
+  if (!fbclid) return "";
+  const ts = Math.floor(Date.now() / 1000);
+  return `fb.1.${ts}.${fbclid}`;
+}
+
 async function handleFormSubmit(e){
   e.preventDefault();
 
@@ -377,7 +389,7 @@ async function handleFormSubmit(e){
     localStorage.setItem("user_phone", data.whatsapp);
     localStorage.setItem("transacao", data.transacao);
     localStorage.setItem("_fbp", getCookie("_fbp") || "");
-    localStorage.setItem("_fbc", getCookie("_fbc") || "");
+    localStorage.setItem("_fbc", getFbc()); 
   } catch(e){}
 
   // event_id para deduplicação
@@ -401,7 +413,7 @@ const payload = {
     email: localStorage.getItem("user_email") || data.email,
     phone: localStorage.getItem("user_phone") || data.whatsapp,
     fbp: localStorage.getItem("_fbp") || "",
-    fbc: localStorage.getItem("_fbc") || ""
+    fbc: getFbc()
   },
   custom_data: {
     content_ids: [data.transacao || 'no-tx'],
