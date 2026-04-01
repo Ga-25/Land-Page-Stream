@@ -316,13 +316,32 @@ return match ? decodeURIComponent(match[2]) : null;
 
       // ✅ ENHANCED CONVERSIONS APLICADAS
       if (hashedEmail && hashedPhone) {
-        fbq('set', 'user_data', {
-          em: hashedEmail,
-          ph: hashedPhone,
-          fn: fn,
-          ln: ln,
-          external_id: externalId
-        });
+      const userDataPayload = {};
+
+      if (hashedEmail && hashedEmail.length === 64) {
+        userDataPayload.em = hashedEmail;
+      }
+
+      if (hashedPhone && hashedPhone.length === 64) {
+        userDataPayload.ph = hashedPhone;
+      }
+
+      if (fn && fn.length === 64) {
+        userDataPayload.fn = fn;
+      }
+
+      if (ln && ln.length === 64) {
+        userDataPayload.ln = ln;
+      }
+
+      if (externalId && externalId.length === 64) {
+        userDataPayload.external_id = externalId;
+      }
+
+      // Só envia se tiver dados válidos
+      if (Object.keys(userDataPayload).length > 0) {
+        fbq('set', 'user_data', userDataPayload);
+      }
       }
       
       // ✅ PURCHASE EVENT COM ID SINCRONIZADO
