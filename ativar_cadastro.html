@@ -419,101 +419,48 @@
 
       
 // 🔥 FURION POWER - ENHANCED CONVERSIONS COM TIMING PERFEITO
-// 🔥 FURION POWER - ENHANCED CONVERSIONS CORRIGIDAS
-if (typeof fbq !== 'undefined') {
-  if (enhancedConversionsData && Object.keys(enhancedConversionsData).length > 0) {
+
+
+
+        // CompleteRegistration com Enhanced Conversions
+        // ✅ APENAS CompleteRegistration (remove Lead para evitar confusão)
+        fbq('track', 'CompleteRegistration', {
+            content_name: 'FURION TV Premium Registration',
+            content_category: 'subscription',
+            content_ids: [formData.transacao],
+            value: 25.00,
+            currency: 'BRL',
+            status: 'completed',
+            order_id: formData.transacao
+        }, {
+            eventID: eventId  // ✅ Event ID único
+        });
+
+        localStorage.setItem('last_event_id', eventId);
+
+
+
+        // Custom Events para otimização
+        // ✅ Custom Events para otimização (sem conflito)
+        fbq('trackCustom', 'HighValueRegistration', {
+            registration_type: 'premium_subscription',
+            lead_quality: 'high',
+            form_completion_time: Date.now() - (window.formStartTime || Date.now()),
+            utm_source: formData.utm_source,
+            utm_campaign: formData.utm_campaign,
+            conversion_value: 25.00,
+            customer_tier: 'premium'
+        });
+
+
+        fbq('trackCustom', 'PremiumSignup', {
+            signup_method: 'website_form',
+            user_type: 'premium_prospect',
+            conversion_value: 25.00,
+            subscription_tier: 'premium',
+            registration_quality: 'complete'
+        });
     
-    // Criar objeto LIMPO forçando estrutura simples
-    const cleanUserData = {};
-    
-    // Adicionar cada propriedade individualmente
-    if (enhancedConversionsData.em && typeof enhancedConversionsData.em === 'string') {
-      cleanUserData.em = enhancedConversionsData.em;
-    }
-    
-    if (enhancedConversionsData.ph && typeof enhancedConversionsData.ph === 'string') {
-      cleanUserData.ph = enhancedConversionsData.ph;
-    }
-    
-    if (enhancedConversionsData.fn && typeof enhancedConversionsData.fn === 'string') {
-      cleanUserData.fn = enhancedConversionsData.fn;
-    }
-    
-    if (enhancedConversionsData.ln && typeof enhancedConversionsData.ln === 'string') {
-      cleanUserData.ln = enhancedConversionsData.ln;
-    }
-    
-    if (enhancedConversionsData.external_id && typeof enhancedConversionsData.external_id === 'string') {
-      cleanUserData.external_id = enhancedConversionsData.external_id;
-    }
-    
-    // Verificar se o objeto limpo tem dados
-    if (Object.keys(cleanUserData).length > 0) {
-      console.log('🔥 Aplicando Enhanced Conversions LIMPAS:', cleanUserData);
-      console.log('🔍 Tipo do objeto:', typeof cleanUserData);
-      console.log('🔍 Chaves do objeto:', Object.keys(cleanUserData));
-      
-      // Pequeno delay para garantir que o pixel está pronto
-      setTimeout(() => {
-        try {
-          fbq('set', 'user_data', cleanUserData);
-          console.log('✅ Enhanced Conversions aplicadas com sucesso');
-        } catch (error) {
-          console.error('❌ Erro ao aplicar Enhanced Conversions:', error);
-        }
-      }, 100);
-      
-    } else {
-      console.warn('⚠️ Objeto limpo vazio - Enhanced Conversions puladas');
-    }
-  } else {
-    console.log('⚠️ Enhanced Conversions puladas - dados insuficientes');
-  }
-  
-  // Eventos normais com delay
-  setTimeout(() => {
-    // CompleteRegistration event
-    fbq('track', 'CompleteRegistration', {
-      content_name: 'FURION TV Premium Registration',
-      content_category: 'subscription',
-      content_ids: [formData.transacao],
-      value: 25.00,
-      currency: 'BRL',
-      status: 'completed',
-      order_id: formData.transacao
-    }, {
-      eventID: eventId
-    });
-
-
-
-    localStorage.setItem('last_event_id', eventId);
-
-
-
-    // Custom Events
-    fbq('trackCustom', 'HighValueRegistration', {
-      registration_type: 'premium_subscription',
-      lead_quality: 'high',
-      form_completion_time: Date.now() - (window.formStartTime || Date.now()),
-      utm_source: formData.utm_source,
-      utm_campaign: formData.utm_campaign,
-      conversion_value: 25.00,
-      customer_tier: 'premium'
-    });
-
-
-
-    fbq('trackCustom', 'PremiumSignup', {
-      signup_method: 'website_form',
-      user_type: 'premium_prospect',
-      conversion_value: 25.00,
-      subscription_tier: 'premium',
-      registration_quality: 'complete'
-    });
-    
-  }, 200);
-}
     
 
 
