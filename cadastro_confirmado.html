@@ -275,11 +275,13 @@ return match ? decodeURIComponent(match[2]) : null;
 
 
       // ✅ RECRIA HASHES COM ASYNC/AWAIT CORRETO
-      let hashedEmail = '', hashedPhone = '', fn = '', ln = '', externalId = '';
+      let enhancedConversionsData = null;
 
 
 
       try {
+        console.log('🔄 Recriando hashes para Purchase...');
+        
         const userData = {
           nome: localStorage.getItem("user_name") || "",
           email: localStorage.getItem("user_email") || "",
@@ -288,61 +290,65 @@ return match ? decodeURIComponent(match[2]) : null;
 
 
 
-        if (userData.email && userData.whatsapp && userData.nome) {
-          // ✅ RECRIA OS HASHES COM MESMA LÓGICA
-          hashedEmail = await hashData(userData.email);
-          
-          let phoneForHash = userData.whatsapp.replace(/\D/g, '');
-          if (phoneForHash.length === 11 && !phoneForHash.startsWith('55')) {
-            phoneForHash = '55' + phoneForHash;
-          }
-          hashedPhone = await hashData(phoneForHash);
-          
-          const nameParts = userData.nome.trim().toLowerCase().split(' ');
-          fn = await hashData(nameParts[0]);
-          
-          if (nameParts.length > 1) {
-            ln = await hashData(nameParts.slice(1).join(' '));
-          }
-          
-          const rawExternalId = userData.email + phoneForHash;
-          externalId = await hashData(rawExternalId);
+            if (userData.email && userData.whatsapp && userData.nome) {
+      const hashes = {};
+      
+      // Email hash
+      if (userData.email.includes('@')) {
+        hashes.em = await hashData(userData.email);
+        console.log('✅ Purchase - Email hash:', hashes.em ? 'OK' : 'FALHOU');
+      }
+      
+      // Phone hash
+      let phoneForHash = userData.whatsapp.replace(/\D/g, '');
+      if (phoneForHash.length === 11 && !phoneForHash.startsWith('55')) {
+        phoneForHash = '55' + phoneForHash;
+      }
+      hashes.ph = await hashData(phoneForHash);
+      console.log('✅ Purchase - Phone hash:', hashes.ph ? 'OK' : 'FALHOU');
+      
+      // Name hashes
+      const nameParts = userData.nome.trim().toLowerCase().split(' ');
+      hashes.fn = await hashData(nameParts[0]);
+      console.log('✅ Purchase - First name hash:', hashes.fn ? 'OK' : 'FALHOU');
+      
+      if (nameParts.length > 1) {
+        hashes.ln = await hashData(nameParts.slice(1).join(' '));
+        console.log('✅ Purchase - Last name hash:', hashes.ln ? 'OK' : 'FALHOU');
+      }
+      
+      // External ID
+      const rawExternalId = userData.email + phoneForHash;
+      hashes.external_id = await hashData(rawExternalId);
+      console.log('✅ Purchase - External ID hash:', hashes.external_id ? 'OK' : 'FALHOU');
+      
+      // Validar todos os hashes
+      const validHashes = {};
+      Object.keys(hashes).forEach(key => {
+        if (hashes[key] && hashes[key].length === 64) {
+          validHashes[key] = hashes[key];
         }
-      } catch(e) {
-        console.warn('Erro ao recriar hashes:', e);
+      });
+      
+      if (Object.keys(validHashes).length > 0) {
+        enhancedConversionsData = validHashes;
+        console.log('🔥 Purchase Enhanced Conversions preparadas:', Object.keys(validHashes));
       }
+    }
+  } catch(e) {
+    console.error('❌ Erro ao recriar hashes Purchase:', e);
+    enhancedConversionsData = null;
+  }
 
 
 
-      // ✅ ENHANCED CONVERSIONS APLICADAS
-      if (hashedEmail && hashedPhone) {
-      const userDataPayload = {};
-
-      if (hashedEmail && hashedEmail.length === 64) {
-        userDataPayload.em = hashedEmail;
-      }
-
-      if (hashedPhone && hashedPhone.length === 64) {
-        userDataPayload.ph = hashedPhone;
-      }
-
-      if (fn && fn.length === 64) {
-        userDataPayload.fn = fn;
-      }
-
-      if (ln && ln.length === 64) {
-        userDataPayload.ln = ln;
-      }
-
-      if (externalId && externalId.length === 64) {
-        userDataPayload.external_id = externalId;
-      }
-
-      // Só envia se tiver dados válidos
-      if (Object.keys(userDataPayload).length > 0) {
-        fbq('set', 'user_data', userDataPayload);
-      }
-      }
+       // 🔥 APLICAR ENHANCED CONVERSIONS APENAS SE VÁLIDAS
+  if (enhancedConversionsData && Object.keys(enhancedConversionsData).length > 0) {
+    console.log('🔥 Aplicando Enhanced Conversions Purchase:', enhancedConversionsData);
+    fbq('set', 'user_data', enhancedConversionsData);
+  } else {
+    console.log('⚠️ Enhanced Conversions Purchase puladas - dados insuficientes');
+  }
       
       // ✅ PURCHASE EVENT COM ID SINCRONIZADO
       fbq('track', 'Purchase', {

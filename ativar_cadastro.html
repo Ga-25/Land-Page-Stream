@@ -347,65 +347,85 @@
 
       // FURION POWER - Multi-Event Tracking
       const eventId = `reg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      let enhancedConversionsData = null;
+      
 
-        let hashedEmail = '', hashedPhone = '', fn = '', ln = '', externalId = '';
+         // Gerar hashes de forma segura
+  try {
+    console.log('🔄 Iniciando geração de hashes...');
+    
+    const hashes = {};
+    
+    // Email hash
+    if (formData.email && formData.email.includes('@')) {
+      hashes.em = await hashData(formData.email);
+      console.log('✅ Email hash:', hashes.em ? 'OK' : 'FALHOU');
+    }
+    
+    // Phone hash
+    if (formData.whatsapp && formData.whatsapp.length > 8) {
+      let phoneForHash = formData.whatsapp.replace(/\D/g, '');
+      if (phoneForHash.length === 11 && !phoneForHash.startsWith('55')) {
+        phoneForHash = '55' + phoneForHash;
+      }
+      hashes.ph = await hashData(phoneForHash);
+      console.log('✅ Phone hash:', hashes.ph ? 'OK' : 'FALHOU');
+    }
+    
+    // Name hashes
+    if (formData.nome && formData.nome.length > 2) {
+      const nameParts = formData.nome.trim().toLowerCase().split(' ');
+      hashes.fn = await hashData(nameParts[0]);
+      console.log('✅ First name hash:', hashes.fn ? 'OK' : 'FALHOU');
+      
+      if (nameParts.length > 1) {
+        hashes.ln = await hashData(nameParts.slice(1).join(' '));
+        console.log('✅ Last name hash:', hashes.ln ? 'OK' : 'FALHOU');
+      }
+    }
+    
+    // External ID
+    if (formData.email && formData.whatsapp) {
+      let phoneForExternal = formData.whatsapp.replace(/\D/g, '');
+      if (phoneForExternal.length === 11 && !phoneForExternal.startsWith('55')) {
+        phoneForExternal = '55' + phoneForExternal;
+      }
+      const rawExternalId = formData.email + phoneForExternal;
+      hashes.external_id = await hashData(rawExternalId);
+      console.log('✅ External ID hash:', hashes.external_id ? 'OK' : 'FALHOU');
+    }
+    
+    // Validar hashes antes de usar
+    const validHashes = {};
+    Object.keys(hashes).forEach(key => {
+      if (hashes[key] && hashes[key].length === 64) {
+        validHashes[key] = hashes[key];
+      }
+    });
+    
+    if (Object.keys(validHashes).length > 0) {
+      enhancedConversionsData = validHashes;
+      console.log('🔥 Enhanced Conversions preparadas:', Object.keys(validHashes));
+    } else {
+      console.warn('⚠️ Nenhum hash válido gerado - Enhanced Conversions desabilitadas');
+    }
+    
+  } catch(e) {
+    console.error('❌ Erro na geração de hashes:', e);
+    enhancedConversionsData = null;
+  }
 
-        try {
-            // Email
-            hashedEmail = await hashData(formData.email);
-            
-            // Telefone - Para hash: sempre com código do país
-            let phoneForHash = formData.whatsapp.replace(/\D/g, '');
-            if (phoneForHash.length === 11 && !phoneForHash.startsWith('55')) {
-                phoneForHash = '55' + phoneForHash;
-            }
-            hashedPhone = await hashData(phoneForHash);
-            
-            // Nome
-            const nameParts = formData.nome.trim().toLowerCase().split(' ');
-            fn = await hashData(nameParts[0]);
-            
-            if (nameParts.length > 1) {
-                ln = await hashData(nameParts.slice(1).join(' '));
-            }
-            
-            // ✅ External ID consistente (sempre raw data)
-            const rawExternalId = formData.email + phoneForHash;
-            externalId = await hashData(rawExternalId);
-            
-            } catch(e) {
-            console.warn('Erro ao gerar hashes:', e);
-            }
+  
 
       
-        if (typeof fbq !== 'undefined') {
-        // ✅ Enhanced Conversions com dados hasheados
-        const userDataPayload = {};
-
-        if (hashedEmail && hashedEmail.length === 64) {
-          userDataPayload.em = hashedEmail;
-        }
-
-        if (hashedPhone && hashedPhone.length === 64) {
-          userDataPayload.ph = hashedPhone;
-        }
-
-        if (fn && fn.length === 64) {
-          userDataPayload.fn = fn;
-        }
-
-        if (ln && ln.length === 64) {
-          userDataPayload.ln = ln;
-        }
-
-        if (externalId && externalId.length === 64) {
-          userDataPayload.external_id = externalId;
-        }
-
-        // Só envia se tiver dados válidos
-        if (Object.keys(userDataPayload).length > 0) {
-          fbq('set', 'user_data', userDataPayload);
-        }
+          // 🔥 APLICAR ENHANCED CONVERSIONS APENAS SE VÁLIDAS
+  if (typeof fbq !== 'undefined') {
+    if (enhancedConversionsData && Object.keys(enhancedConversionsData).length > 0) {
+      console.log('🔥 Aplicando Enhanced Conversions:', enhancedConversionsData);
+      fbq('set', 'user_data', enhancedConversionsData);
+    } else {
+      console.log('⚠️ Enhanced Conversions puladas - dados insuficientes');
+    }
       
 
 
