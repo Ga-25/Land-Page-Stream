@@ -419,11 +419,10 @@
 
       
 // 🔥 FURION POWER - ENHANCED CONVERSIONS COM TIMING PERFEITO
+// 🔥 FURION POWER - ENHANCED CONVERSIONS CORRIGIDAS
 if (typeof fbq !== 'undefined') {
-  // Aguardar pixel estar pronto
-  const pixelReady = await waitForPixelReady();
-  
-  if (pixelReady && enhancedConversionsData && Object.keys(enhancedConversionsData).length > 0) {
+  if (enhancedConversionsData && Object.keys(enhancedConversionsData).length > 0) {
+    
     // Criar objeto LIMPO forçando estrutura simples
     const cleanUserData = {};
     
@@ -454,7 +453,7 @@ if (typeof fbq !== 'undefined') {
       console.log('🔍 Tipo do objeto:', typeof cleanUserData);
       console.log('🔍 Chaves do objeto:', Object.keys(cleanUserData));
       
-      // Pequeno delay para garantir que o pixel está 100% pronto
+      // Pequeno delay para garantir que o pixel está pronto
       setTimeout(() => {
         try {
           fbq('set', 'user_data', cleanUserData);
@@ -468,7 +467,7 @@ if (typeof fbq !== 'undefined') {
       console.warn('⚠️ Objeto limpo vazio - Enhanced Conversions puladas');
     }
   } else {
-    console.log('⚠️ Enhanced Conversions puladas - pixel não pronto ou dados insuficientes');
+    console.log('⚠️ Enhanced Conversions puladas - dados insuficientes');
   }
       
 
