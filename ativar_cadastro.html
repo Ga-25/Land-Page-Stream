@@ -469,48 +469,51 @@ if (typeof fbq !== 'undefined') {
   } else {
     console.log('⚠️ Enhanced Conversions puladas - dados insuficientes');
   }
-      
-
-
-        // CompleteRegistration com Enhanced Conversions
-        // ✅ APENAS CompleteRegistration (remove Lead para evitar confusão)
-        fbq('track', 'CompleteRegistration', {
-            content_name: 'FURION TV Premium Registration',
-            content_category: 'subscription',
-            content_ids: [formData.transacao],
-            value: 25.00,
-            currency: 'BRL',
-            status: 'completed',
-            order_id: formData.transacao
-        }, {
-            eventID: eventId  // ✅ Event ID único
-        });
-
-        localStorage.setItem('last_event_id', eventId);
+  
+  // Eventos normais com delay
+  setTimeout(() => {
+    // CompleteRegistration event
+    fbq('track', 'CompleteRegistration', {
+      content_name: 'FURION TV Premium Registration',
+      content_category: 'subscription',
+      content_ids: [formData.transacao],
+      value: 25.00,
+      currency: 'BRL',
+      status: 'completed',
+      order_id: formData.transacao
+    }, {
+      eventID: eventId
+    });
 
 
 
-        // Custom Events para otimização
-        // ✅ Custom Events para otimização (sem conflito)
-        fbq('trackCustom', 'HighValueRegistration', {
-            registration_type: 'premium_subscription',
-            lead_quality: 'high',
-            form_completion_time: Date.now() - (window.formStartTime || Date.now()),
-            utm_source: formData.utm_source,
-            utm_campaign: formData.utm_campaign,
-            conversion_value: 25.00,
-            customer_tier: 'premium'
-        });
+    localStorage.setItem('last_event_id', eventId);
 
 
-        fbq('trackCustom', 'PremiumSignup', {
-            signup_method: 'website_form',
-            user_type: 'premium_prospect',
-            conversion_value: 25.00,
-            subscription_tier: 'premium',
-            registration_quality: 'complete'
-        });
-    }
+
+    // Custom Events
+    fbq('trackCustom', 'HighValueRegistration', {
+      registration_type: 'premium_subscription',
+      lead_quality: 'high',
+      form_completion_time: Date.now() - (window.formStartTime || Date.now()),
+      utm_source: formData.utm_source,
+      utm_campaign: formData.utm_campaign,
+      conversion_value: 25.00,
+      customer_tier: 'premium'
+    });
+
+
+
+    fbq('trackCustom', 'PremiumSignup', {
+      signup_method: 'website_form',
+      user_type: 'premium_prospect',
+      conversion_value: 25.00,
+      subscription_tier: 'premium',
+      registration_quality: 'complete'
+    });
+    
+  }, 200);
+}
     
 
 
