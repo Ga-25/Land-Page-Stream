@@ -418,14 +418,58 @@
   
 
       
-          // 🔥 APLICAR ENHANCED CONVERSIONS APENAS SE VÁLIDAS
-  if (typeof fbq !== 'undefined') {
-    if (enhancedConversionsData && Object.keys(enhancedConversionsData).length > 0) {
-      console.log('🔥 Aplicando Enhanced Conversions:', enhancedConversionsData);
-      fbq('set', 'user_data', enhancedConversionsData);
-    } else {
-      console.log('⚠️ Enhanced Conversions puladas - dados insuficientes');
+// 🔥 FURION POWER - ENHANCED CONVERSIONS COM TIMING PERFEITO
+if (typeof fbq !== 'undefined') {
+  // Aguardar pixel estar pronto
+  const pixelReady = await waitForPixelReady();
+  
+  if (pixelReady && enhancedConversionsData && Object.keys(enhancedConversionsData).length > 0) {
+    // Criar objeto LIMPO forçando estrutura simples
+    const cleanUserData = {};
+    
+    // Adicionar cada propriedade individualmente
+    if (enhancedConversionsData.em && typeof enhancedConversionsData.em === 'string') {
+      cleanUserData.em = enhancedConversionsData.em;
     }
+    
+    if (enhancedConversionsData.ph && typeof enhancedConversionsData.ph === 'string') {
+      cleanUserData.ph = enhancedConversionsData.ph;
+    }
+    
+    if (enhancedConversionsData.fn && typeof enhancedConversionsData.fn === 'string') {
+      cleanUserData.fn = enhancedConversionsData.fn;
+    }
+    
+    if (enhancedConversionsData.ln && typeof enhancedConversionsData.ln === 'string') {
+      cleanUserData.ln = enhancedConversionsData.ln;
+    }
+    
+    if (enhancedConversionsData.external_id && typeof enhancedConversionsData.external_id === 'string') {
+      cleanUserData.external_id = enhancedConversionsData.external_id;
+    }
+    
+    // Verificar se o objeto limpo tem dados
+    if (Object.keys(cleanUserData).length > 0) {
+      console.log('🔥 Aplicando Enhanced Conversions LIMPAS:', cleanUserData);
+      console.log('🔍 Tipo do objeto:', typeof cleanUserData);
+      console.log('🔍 Chaves do objeto:', Object.keys(cleanUserData));
+      
+      // Pequeno delay para garantir que o pixel está 100% pronto
+      setTimeout(() => {
+        try {
+          fbq('set', 'user_data', cleanUserData);
+          console.log('✅ Enhanced Conversions aplicadas com sucesso');
+        } catch (error) {
+          console.error('❌ Erro ao aplicar Enhanced Conversions:', error);
+        }
+      }, 100);
+      
+    } else {
+      console.warn('⚠️ Objeto limpo vazio - Enhanced Conversions puladas');
+    }
+  } else {
+    console.log('⚠️ Enhanced Conversions puladas - pixel não pronto ou dados insuficientes');
+  }
       
 
 
