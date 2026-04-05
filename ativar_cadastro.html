@@ -281,22 +281,58 @@
     };
 
 
+      // ✅ FURION POWER - EVENT ID ULTRA-ROBUSTO
+    function generateSyncEventId(eventType = 'reg') {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 9);
+      
+      // Múltiplas fontes de backup para recuperar base ID
+      let baseId = localStorage.getItem('furion_base_event') || 
+                  sessionStorage.getItem('furion_base_event') ||
+                  getCookie('furion_event_base') ||
+                  null;
+      
+      if (!baseId) {
+          // Gerar novo base ID único
+          baseId = `base_${timestamp}_${random}`;
+          
+          // Salvar em múltiplos locais (máxima confiabilidade)
+          try {
+              localStorage.setItem('furion_base_event', baseId);
+              sessionStorage.setItem('furion_base_event', baseId);
+              document.cookie = `furion_event_base=${baseId}; path=/; max-age=7200; SameSite=None; Secure`;
+              console.log('🔥 Base Event ID criado:', baseId);
+          } catch(e) {
+              console.warn('Erro ao salvar base ID:', e);
+          }
+      }
+      
+      // Gerar event ID específico
+      const eventId = baseId.replace('base_', `${eventType}_`);
+      console.log(`🎯 Event ID gerado: ${eventId}`);
+      return eventId;
+    }
 
-    // FURION POWER - Enhanced Form Handler
-    async function handleFormSubmit(e) {
+
+
+      // FURION POWER - Enhanced Form Handler
+      async function handleFormSubmit(e) {
       e.preventDefault();
-      
       if (!checkSubmissionRate()) return;
-      
+
+
+
       const inputs = document.querySelectorAll('.form-input[required]');
       let isValid = true;
       inputs.forEach(input => {
-        if (!validateField(input) || input.value.trim() === '') isValid = false;
+          if (!validateField(input) || input.value.trim() === '') isValid = false;
       });
-      
+
+
+
       if (!isValid) {
-        notify('Por favor, corrija os erros no formulário.', 'error');
-        return;
+          notify('Por favor, corrija os erros no formulário.', 'error');
+          return;
       }
 
 
@@ -308,231 +344,130 @@
 
 
       const formData = {
-        nome: document.getElementById('nome').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        whatsapp: document.getElementById('whatsapp').value.trim(),
-        transacao: document.getElementById('transacao').value.trim() || generateTransactionId(),
-        timestamp: new Date().toISOString(),
-        source: 'FURION_TV_Registration',
-        utm_source: localStorage.getItem('utm_source') || 'direct',
-        utm_medium: localStorage.getItem('utm_medium') || 'organic',
-        utm_campaign: localStorage.getItem('utm_campaign') || 'default'
+          nome: document.getElementById('nome').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          whatsapp: document.getElementById('whatsapp').value.trim(),
+          transacao: document.getElementById('transacao').value.trim() || generateTransactionId(),
+          timestamp: new Date().toISOString(),
+          source: 'FURION_TV_Registration',
+          utm_source: localStorage.getItem('utm_source') || 'direct',
+          utm_medium: localStorage.getItem('utm_medium') || 'organic',
+          utm_campaign: localStorage.getItem('utm_campaign') || 'default'
       };
 
 
 
-      // FURION POWER - Enhanced localStorage
+      // ✅ FURION POWER - EVENT ID SINCRONIZADO ULTRA-ROBUSTO
+      const sharedEventId = generateSyncEventId('reg');
+      
+      // Salvar dados no localStorage
       try {
-        const userData = {
-          user_name: formData.nome,
-          user_email: formData.email,
-          user_phone: formData.whatsapp,
-          transacao: formData.transacao,
-          _fbp: getCookie('_fbp') || '',
-          _fbc: getCookie('_fbc') || '',
-          registration_time: Date.now(),
-          user_agent: navigator.userAgent,
-          screen_resolution: `${screen.width}x${screen.height}`,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-        };
-        
-        Object.keys(userData).forEach(key => {
-          localStorage.setItem(key, userData[key]);
-        });
+          const userData = {
+              user_name: formData.nome,
+              user_email: formData.email,
+              user_phone: formData.whatsapp,
+              transacao: formData.transacao,
+              _fbp: getCookie('_fbp') || '',
+              _fbc: getCookie('_fbc') || '',
+              registration_time: Date.now(),
+              user_agent: navigator.userAgent,
+              screen_resolution: `${screen.width}x${screen.height}`,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              shared_event_id: sharedEventId // ✅ SALVAR PARA SINCRONIZAÇÃO
+          };
+          Object.keys(userData).forEach(key => {
+              localStorage.setItem(key, userData[key]);
+          });
+          console.log('✅ Dados salvos com Event ID:', sharedEventId);
       } catch(e) {
-        console.warn('Erro ao salvar dados:', e);
+          console.warn('Erro ao salvar dados:', e);
       }
 
 
 
-      // FURION POWER - Multi-Event Tracking
-      const eventId = `reg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      let enhancedConversionsData = null;
-      
-
-         // Gerar hashes de forma segura
-  try {
-    console.log('🔄 Iniciando geração de hashes...');
-    
-    const hashes = {};
-    
-    // Email hash
-    if (formData.email && formData.email.includes('@')) {
-      hashes.em = await hashData(formData.email);
-      console.log('✅ Email hash:', hashes.em ? 'OK' : 'FALHOU');
-    }
-    
-    // Phone hash
-    if (formData.whatsapp && formData.whatsapp.length > 8) {
-      let phoneForHash = formData.whatsapp.replace(/\D/g, '');
-      if (phoneForHash.length === 11 && !phoneForHash.startsWith('55')) {
-        phoneForHash = '55' + phoneForHash;
-      }
-      hashes.ph = await hashData(phoneForHash);
-      console.log('✅ Phone hash:', hashes.ph ? 'OK' : 'FALHOU');
-    }
-    
-    // Name hashes
-    if (formData.nome && formData.nome.length > 2) {
-      const nameParts = formData.nome.trim().toLowerCase().split(' ');
-      hashes.fn = await hashData(nameParts[0]);
-      console.log('✅ First name hash:', hashes.fn ? 'OK' : 'FALHOU');
-      
-      if (nameParts.length > 1) {
-        hashes.ln = await hashData(nameParts.slice(1).join(' '));
-        console.log('✅ Last name hash:', hashes.ln ? 'OK' : 'FALHOU');
-      }
-    }
-    
-    // External ID
-    if (formData.email && formData.whatsapp) {
-      let phoneForExternal = formData.whatsapp.replace(/\D/g, '');
-      if (phoneForExternal.length === 11 && !phoneForExternal.startsWith('55')) {
-        phoneForExternal = '55' + phoneForExternal;
-      }
-      const rawExternalId = formData.email + phoneForExternal;
-      hashes.external_id = await hashData(rawExternalId);
-      console.log('✅ External ID hash:', hashes.external_id ? 'OK' : 'FALHOU');
-    }
-    
-    // Validar hashes antes de usar
-    const validHashes = {};
-    Object.keys(hashes).forEach(key => {
-      if (hashes[key] && hashes[key].length === 64) {
-        validHashes[key] = hashes[key];
-      }
-    });
-    
-    if (Object.keys(validHashes).length > 0) {
-      enhancedConversionsData = validHashes;
-      console.log('🔥 Enhanced Conversions preparadas:', Object.keys(validHashes));
-    } else {
-      console.warn('⚠️ Nenhum hash válido gerado - Enhanced Conversions desabilitadas');
-    }
-    
-  } catch(e) {
-    console.error('❌ Erro na geração de hashes:', e);
-    enhancedConversionsData = null;
-  }
-
-  
-
-      
-// 🔥 FURION POWER - ENHANCED CONVERSIONS COM TIMING PERFEITO
+      // ✅ FURION POWER - BROWSER EVENT ÚNICO (CompleteRegistration)
+      fbq('track', 'CompleteRegistration', {
+          content_name: 'FURION TV Premium Registration',
+          content_category: 'subscription',
+          content_ids: [formData.transacao],
+          value: 25.00,
+          currency: 'BRL',
+          status: 'completed',
+          order_id: formData.transacao
+      }, {
+          eventID: sharedEventId // ✅ ID SINCRONIZADO
+      });
 
 
 
-        // CompleteRegistration com Enhanced Conversions
-        // ✅ APENAS CompleteRegistration (remove Lead para evitar confusão)
-        fbq('track', 'CompleteRegistration', {
-            content_name: 'FURION TV Premium Registration',
-            content_category: 'subscription',
-            content_ids: [formData.transacao],
-            value: 25.00,
-            currency: 'BRL',
-            status: 'completed',
-            order_id: formData.transacao
-        }, {
-            eventID: eventId  // ✅ Event ID único
-        });
-
-        localStorage.setItem('last_event_id', eventId);
+      // ✅ CUSTOM EVENTS COM IDs ÚNICOS (não conflitam)
+      fbq('trackCustom', 'HighValueRegistration', {
+          registration_type: 'premium_subscription',
+          lead_quality: 'high',
+          form_completion_time: Date.now() - (window.formStartTime || Date.now()),
+          utm_source: formData.utm_source,
+          utm_campaign: formData.utm_campaign,
+          conversion_value: 25.00,
+          customer_tier: 'premium'
+      }, {
+          eventID: `custom_high_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+      });
 
 
 
-        // Custom Events para otimização
-        // ✅ Custom Events para otimização (sem conflito)
-        fbq('trackCustom', 'HighValueRegistration', {
-            registration_type: 'premium_subscription',
-            lead_quality: 'high',
-            form_completion_time: Date.now() - (window.formStartTime || Date.now()),
-            utm_source: formData.utm_source,
-            utm_campaign: formData.utm_campaign,
-            conversion_value: 25.00,
-            customer_tier: 'premium'
-        });
-
-
-        fbq('trackCustom', 'PremiumSignup', {
-            signup_method: 'website_form',
-            user_type: 'premium_prospect',
-            conversion_value: 25.00,
-            subscription_tier: 'premium',
-            registration_quality: 'complete'
-        });
-    
-    
-
-
-
-      // FURION POWER - Multi-CAPI Dispatch
+      // ✅ FURION POWER - CAPI COM DADOS PUROS (SEM HASH NO FRONT)
       await Promise.allSettled(CONFIG.capiEndpoints.map(async (endpoint) => {
-        // Telefone para CAPI - formato brasileiro limpo
-        let phoneForCAPI = formData.whatsapp.replace(/\D/g, '');
-
-        if (!phoneForCAPI.startsWith('55')) {
-        phoneForCAPI = '55' + phoneForCAPI;
-        }
-                
-        return sendToCAPI(endpoint, {
-          event_name: "CompleteRegistration",
-          event_id: eventId,
-          event_time: Math.floor(Date.now() / 1000), // ✅ AQUI
-          action_source: "website", // ✅ AQUI
-          event_source_url: window.location.href,
-          user: {
-          // ✅ DADOS RAW PARA CAPI (servidor fará o hash)
-            name: formData.nome,
-            email: formData.email,
-            phone: phoneForCAPI,  // Apenas números
-            fbp: getCookie('_fbp') || '',
-            fbc: getCookie('_fbc') || '',
-            external_id: formData.email + phoneForCAPI,
-            client_user_agent: navigator.userAgent,
-            
-            },
-          custom_data: {
-            content_ids: [formData.transacao],
-            content_name: "FURION TV Premium",
-            content_type: "subscription",
-            value: 25.00,
-            currency: "BRL",
-            order_id: formData.transacao,
-            utm_source: formData.utm_source,
-            utm_campaign: formData.utm_campaign,
-            registration_source: 'website',
-            customer_tier: 'premium',
-            registration_quality: 'complete'
+          // Telefone normalizado para CAPI
+          let phoneForCAPI = formData.whatsapp.replace(/\D/g, '');
+          if (phoneForCAPI.length === 11 && !phoneForCAPI.startsWith('55')) {
+              phoneForCAPI = '55' + phoneForCAPI;
           }
-        })
+
+
+
+          return sendToCAPI(endpoint, {
+              event_name: "CompleteRegistration",
+              event_id: sharedEventId, // ✅ MESMO ID DO BROWSER
+              event_time: Math.floor(Date.now() / 1000),
+              action_source: "website",
+              event_source_url: window.location.href,
+              user: {
+                  // ✅ DADOS PUROS - HASH SERÁ FEITO NO BACKEND
+                  name: formData.nome.trim(),
+                  email: formData.email.trim().toLowerCase(),
+                  phone: phoneForCAPI,
+                  fbp: getCookie('_fbp') || '',
+                  fbc: getCookie('_fbc') || '',
+                  external_id: (formData.email.trim().toLowerCase() + phoneForCAPI),
+                  client_user_agent: navigator.userAgent,
+              },
+              custom_data: {
+                  content_ids: [formData.transacao],
+                  content_name: "FURION TV Premium",
+                  content_type: "subscription",
+                  value: 25.00,
+                  currency: "BRL",
+                  order_id: formData.transacao,
+                  utm_source: formData.utm_source,
+                  utm_campaign: formData.utm_campaign,
+                  registration_source: 'website',
+                  customer_tier: 'premium',
+                  registration_quality: 'complete'
+              }
+          })
       }));
 
 
 
-      // FURION POWER - Multi-WhatsApp Notification
+      // WhatsApp e redirecionamento
       await sendMultiWhatsApp(formData);
-      
       showSuccessAndRedirect();
-    }
-
-
+  }
 
     // FURION POWER - Helper Functions
     function generateTransactionId() {
       return `FTV_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     }
-
-
-
-    async function hashData(data) {
-      if (!data) return '';
-      const encoder = new TextEncoder();
-      const dataBuffer = encoder.encode(data.toLowerCase().trim());
-      const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
 
 
     async function sendToCAPI(endpoint, payload) {
@@ -602,7 +537,7 @@
 
 
         input.addEventListener('input', debounce(() => {
-            maybeInitiateCheckout(); // 👈 ADICIONA AQUI
+            //maybeInitiateCheckout(); // 👈 ADICIONA AQUI
 
         const nome = document.getElementById('nome').value;
         const email = document.getElementById('email').value;
@@ -617,37 +552,7 @@
         }, 1000));  
       });
 
-        function maybeInitiateCheckout(){
-        if(!initiatedCheckout && typeof fbq !== 'undefined'){
-            
-            const nome = document.getElementById('nome').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const whatsapp = document.getElementById('whatsapp').value.trim();
-
-
-            if(nome.length > 5 && email.includes('@') && whatsapp.length > 10){
-            initiatedCheckout = true;
-
-            const checkoutEventId = `checkout_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-
-            fbq('track', 'InitiateCheckout', {
-            content_name: 'FURION Registration',
-            content_category: 'subscription',
-            value: 25.00,
-            currency: 'BRL'
-            }, {
-            eventID: checkoutEventId
-            });
-
-            window.checkoutEventId = checkoutEventId;
-
-            console.log('🔥 InitiateCheckout QUALIFICADO disparado');
-                }
-            }
-        }
-
-
-
+      
       // Enhanced form validation and other initializations
       initForm();
       initProgressBar();

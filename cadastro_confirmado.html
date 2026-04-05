@@ -226,6 +226,30 @@ return match ? decodeURIComponent(match[2]) : null;
     };
 
 
+    // ✅ FURION POWER - MESMA FUNÇÃO DO ATIVAR_CADASTRO
+    function generateSyncEventId(eventType = 'purchase') {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 9);
+        
+        // Recuperar base ID salvo no registro
+        let baseId = localStorage.getItem('furion_base_event') || 
+                    sessionStorage.getItem('furion_base_event') ||
+                    getCookie('furion_event_base') ||
+                    localStorage.getItem('shared_event_id') || // Fallback
+                    null;
+        
+        if (!baseId) {
+            console.warn('⚠️ Base ID não encontrado, gerando fallback');
+            baseId = `fallback_${timestamp}_${random}`;
+        }
+        
+        // Converter base para purchase
+        const eventId = baseId.replace('base_', `${eventType}_`).replace('reg_', `${eventType}_`);
+        console.log(`🎯 Purchase Event ID: ${eventId}`);
+        return eventId;
+    }
+
+
 
     document.addEventListener('DOMContentLoaded', function() {
       initFinalPixelEvents();
@@ -246,221 +270,125 @@ return match ? decodeURIComponent(match[2]) : null;
 
     // ✅ FURION POWER - PURCHASE EVENT CORRIGIDO (ASYNC)
     async function firePurchaseEvent() {
-      if (localStorage.getItem('furion_purchase_fired')) {
-        console.log('🔥 Purchase já disparado. Sistema anti-duplicação ativo.');
-        return;
-      }
-
-
-
-      if (typeof fbq === 'undefined') {
-        console.warn('fbq não disponível');
-        return;
-      }
-
-
-
-      // ✅ ID SINCRONIZADO COM ATIVAR_CADASTRO
-      let baseEventId = localStorage.getItem('last_event_id');
-
-
-    if (!baseEventId) {
-    console.warn('⚠️ last_event_id não encontrado, gerando fallback');
-    baseEventId = `fallback_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    }
-      const purchaseEventId = baseEventId.replace('reg_', 'purchase_');
-      
-      const transactionId = localStorage.getItem("transacao") || `FTV_${Date.now()}`;
-
-
-
-      // ✅ RECRIA HASHES COM ASYNC/AWAIT CORRETO
-      let enhancedConversionsData = null;
-
-
-
-      try {
-        console.log('🔄 Recriando hashes para Purchase...');
-        
-        const userData = {
-          nome: localStorage.getItem("user_name") || "",
-          email: localStorage.getItem("user_email") || "",
-          whatsapp: localStorage.getItem("user_phone") || ""
-        };
-
-
-
-            if (userData.email && userData.whatsapp && userData.nome) {
-      const hashes = {};
-      
-      // Email hash
-      if (userData.email.includes('@')) {
-        hashes.em = await hashData(userData.email);
-        console.log('✅ Purchase - Email hash:', hashes.em ? 'OK' : 'FALHOU');
-      }
-      
-      // Phone hash
-      let phoneForHash = userData.whatsapp.replace(/\D/g, '');
-      if (phoneForHash.length === 11 && !phoneForHash.startsWith('55')) {
-        phoneForHash = '55' + phoneForHash;
-      }
-      hashes.ph = await hashData(phoneForHash);
-      console.log('✅ Purchase - Phone hash:', hashes.ph ? 'OK' : 'FALHOU');
-      
-      // Name hashes
-      const nameParts = userData.nome.trim().toLowerCase().split(' ');
-      hashes.fn = await hashData(nameParts[0]);
-      console.log('✅ Purchase - First name hash:', hashes.fn ? 'OK' : 'FALHOU');
-      
-      if (nameParts.length > 1) {
-        hashes.ln = await hashData(nameParts.slice(1).join(' '));
-        console.log('✅ Purchase - Last name hash:', hashes.ln ? 'OK' : 'FALHOU');
-      }
-      
-      // External ID
-      const rawExternalId = userData.email + phoneForHash;
-      hashes.external_id = await hashData(rawExternalId);
-      console.log('✅ Purchase - External ID hash:', hashes.external_id ? 'OK' : 'FALHOU');
-      
-      // Validar todos os hashes
-      const validHashes = {};
-      Object.keys(hashes).forEach(key => {
-        if (hashes[key] && hashes[key].length === 64) {
-          validHashes[key] = hashes[key];
+        if (localStorage.getItem('furion_purchase_fired')) {
+            console.log('🔥 Purchase já disparado. Sistema anti-duplicação ativo.');
+            return;
         }
-      });
-      
-      if (Object.keys(validHashes).length > 0) {
-        enhancedConversionsData = validHashes;
-        console.log('🔥 Purchase Enhanced Conversions preparadas:', Object.keys(validHashes));
-      }
-    }
-  } catch(e) {
-    console.error('❌ Erro ao recriar hashes Purchase:', e);
-    enhancedConversionsData = null;
-  }
 
+    
 
+        if (typeof fbq === 'undefined') {
+            console.warn('fbq não disponível');
+            return;
+        }
 
-       // 🔥 APLICAR ENHANCED CONVERSIONS APENAS SE VÁLIDAS
-        // 🔥 FURION POWER - ENHANCED CONVERSIONS CORRIGIDAS
+    
 
-      
-      // ✅ PURCHASE EVENT COM ID SINCRONIZADO
-      fbq('track', 'Purchase', {
-        content_ids: ['furion-tv-premium'],
-        content_name: 'FURION TV Premium Subscription',
-        content_type: 'subscription',
-        content_category: 'streaming_service',
-        value: 25.00,
-        currency: 'BRL',
-        order_id: transactionId,
-        predicted_ltv: 150.00,
-        num_items: 1
-      }, { eventID: purchaseEventId });
+        // ✅ FURION POWER - EVENT ID SINCRONIZADO COM REGISTRATION
+        const purchaseEventId = generateSyncEventId('purchase');
+        const transactionId = localStorage.getItem("transacao") || `FTV_${Date.now()}`;
 
+    
 
+        // ✅ BROWSER PURCHASE EVENT
+        fbq('track', 'Purchase', {
+            content_ids: ['furion-tv-premium'],
+            content_name: 'FURION TV Premium Subscription',
+            content_type: 'subscription',
+            content_category: 'streaming_service',
+            value: 25.00,
+            currency: 'BRL',
+            order_id: transactionId,
+            predicted_ltv: 150.00,
+            num_items: 1
+        }, {
+            eventID: purchaseEventId // ✅ ID SINCRONIZADO
+        });
 
-      // Custom conversion events
-      fbq('trackCustom', 'PremiumPurchaseComplete', {
-        purchase_type: 'premium_subscription',
-        customer_segment: 'high_value',
-        conversion_path: 'direct_registration',
-        subscription_tier: 'premium',
-        order_id: transactionId
-      });
+    
 
+        // ✅ CUSTOM EVENTS COM IDs ÚNICOS
+        fbq('trackCustom', 'PremiumPurchaseComplete', {
+            purchase_type: 'premium_subscription',
+            customer_segment: 'high_value',
+            conversion_path: 'direct_registration',
+            subscription_tier: 'premium',
+            order_id: transactionId
+        }, {
+            eventID: `custom_purchase_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        });
 
+    
 
-      fbq('trackCustom', 'HighValueConversion', {
-        conversion_value: 25.00,
-        currency: 'BRL',
-        customer_lifetime_value: 150.00,
-        acquisition_source: localStorage.getItem('utm_source') || 'direct'
-      });
+        // ✅ FURION POWER - CAPI COM DADOS PUROS (SEM HASH NO FRONT)
+        try {
+            await Promise.allSettled(CONFIG.capiEndpoints.map(async (endpoint) => {
+                const userData = {
+                    name: localStorage.getItem("user_name") || "",
+                    email: localStorage.getItem("user_email") || "",
+                    phone: localStorage.getItem("user_phone") || ""
+                };
 
+    
 
+                let phoneForCAPI = userData.phone ? userData.phone.replace(/\D/g, '') : '';
+                if (phoneForCAPI.length === 11 && !phoneForCAPI.startsWith('55')) {
+                    phoneForCAPI = '55' + phoneForCAPI;
+                }
 
-      // Salva flag anti-duplicação
-      try { 
+    
+
+                const fbc = localStorage.getItem("_fbc") || getCookie('_fbc') || "";
+                const fbp = localStorage.getItem("_fbp") || getCookie('_fbp') || "";
+
+    
+
+                return sendCAPIEvent(endpoint, {
+                    event_name: "Purchase",
+                    event_id: purchaseEventId, // ✅ MESMO ID DO BROWSER
+                    event_time: Math.floor(Date.now() / 1000),
+                    action_source: "website",
+                    event_source_url: window.location.href.split('?')[0],
+                    user: {
+                        // ✅ DADOS PUROS - HASH SERÁ FEITO NO BACKEND
+                        name: userData.name.trim(),
+                        email: userData.email.trim().toLowerCase(),
+                        phone: phoneForCAPI,
+                        fbp: fbp,
+                        fbc: fbc,
+                        external_id: (userData.email.trim().toLowerCase() + phoneForCAPI),
+                        client_user_agent: navigator.userAgent
+                    },
+                    custom_data: {
+                        content_ids: ["furion-tv-premium"],
+                        content_name: "FURION TV Premium",
+                        content_type: "subscription",
+                        value: 25.00,
+                        currency: "BRL",
+                        order_id: transactionId,
+                        predicted_ltv: 150.00,
+                        customer_segment: "premium"
+                    }
+                });
+            }));
+
+    
+
+            console.log(`🔥 Purchase disparado com ID: ${purchaseEventId}`);
+        } catch (error) {
+            console.error('❌ Erro na CAPI:', error);
+        }
+
+    
+
+        // ✅ MARCAR COMO DISPARADO
         localStorage.setItem('furion_purchase_fired', purchaseEventId);
         localStorage.setItem('purchase_timestamp', Date.now());
-      } catch(e) {}
-
-
-
-      // ✅ CAPI CORRIGIDA COM ASYNC/AWAIT
-      try {
-        await Promise.allSettled(CONFIG.capiEndpoints.map(async (endpoint) => {
-          const userData = {
-            name: localStorage.getItem("user_name") || "",
-            email: localStorage.getItem("user_email") || "",
-            phone: localStorage.getItem("user_phone") || ""
-          };
-
-
-
-          let phoneForCAPI = userData.phone ? userData.phone.replace(/\D/g, '') : '';
-
-          const fbc = localStorage.getItem("_fbc") || getCookie('_fbc') || "";
-          const fbp = localStorage.getItem("_fbp") || getCookie('_fbp') || "";
-          const eventSourceUrl = window.location.href.split('?')[0];
-
-          return sendCAPIEvent(endpoint, {
-            event_name: "Purchase",
-            event_id: purchaseEventId,
-            event_time: Math.floor(Date.now() / 1000),
-            action_source: "website",
-            event_source_url: eventSourceUrl,
-            user: {
-              name: userData.name,
-              email: userData.email,
-              phone: phoneForCAPI,
-              fbp: fbp,
-              fbc: fbc,
-              external_id: userData.email + phoneForCAPI,
-              client_user_agent: navigator.userAgent
-            },
-            custom_data: {
-              content_ids: ["furion-tv-premium"],
-              content_name: "FURION TV Premium",
-              content_type: "subscription",
-              value: 25.00,
-              currency: "BRL",
-              order_id: transactionId,
-              predicted_ltv: 150.00,
-              customer_segment: "premium",
-              utm_source: localStorage.getItem('utm_source') || 'direct',
-              utm_campaign: localStorage.getItem('utm_campaign') || 'default'
-            }
-          });
-        }));
-
-
-
-        console.log(`🔥 Purchase disparado com ID: ${purchaseEventId}`);
-        console.log(`🔗 Conectado ao registro: ${baseEventId}`);
-      } catch (error) {
-        console.error('❌ Erro na CAPI:', error);
-      }
     }
 
 
 
     // ✅ FUNÇÃO HASH IDÊNTICA AO ATIVAR_CADASTRO
-    async function hashData(data) {
-      if (!data) return '';
-      try {
-        const encoder = new TextEncoder();
-        const dataBuffer = encoder.encode(data.toLowerCase().trim());
-        const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      } catch (error) {
-        console.warn('Erro ao gerar hash:', error);
-        return '';
-      }
-    }
 
 
 
