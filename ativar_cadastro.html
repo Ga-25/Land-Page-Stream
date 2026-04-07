@@ -65,7 +65,39 @@
 
 
   // TRIPLE PIXEL POWER
-  fbq('init', '1265874438298153'); // StreamForce Principal
+  // ✅ FURION POWER - ADVANCED MATCHING SUPREMO
+fbq('init', '1265874438298153', {
+  // Enhanced matching automático
+  automatic_matching: true,
+  autoConfig: true
+}, {
+  agent: 'plat'
+});
+
+
+
+// ✅ FURION POWER - ENHANCED INIT COM DADOS DINÂMICOS
+function initEnhancedMatching() {
+  // Captura dados avançados automaticamente
+  const deviceInfo = {
+    screen_resolution: `${screen.width}x${screen.height}`,
+    color_depth: screen.colorDepth,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    language: navigator.language,
+    platform: navigator.platform,
+    device_memory: navigator.deviceMemory || 'unknown',
+    connection_type: navigator.connection ? navigator.connection.effectiveType : 'unknown'
+  };
+  
+  // Salvar para uso posterior
+  localStorage.setItem('device_fingerprint', JSON.stringify(deviceInfo));
+  console.log('🔥 Device fingerprint capturado:', deviceInfo);
+}
+
+
+
+// Executar imediatamente
+initEnhancedMatching(); // StreamForce Principal
  
   
   
@@ -385,7 +417,14 @@
 
 
 
-      // ✅ FURION POWER - BROWSER EVENT ÚNICO (CompleteRegistration)
+            // ✅ FURION POWER - BROWSER EVENT ÚNICO (CompleteRegistration)
+            // ✅ FURION POWER - ENHANCED CONVERSIONS DEVASTADORAS
+      const deviceFingerprint = JSON.parse(localStorage.getItem('device_fingerprint') || '{}');
+      const sessionStart = localStorage.getItem('session_start') || Date.now();
+      const engagementTime = Date.now() - parseInt(sessionStart);
+
+
+
       fbq('track', 'CompleteRegistration', {
           content_name: 'FURION TV Premium Registration',
           content_category: 'subscription',
@@ -393,10 +432,97 @@
           value: 25.00,
           currency: 'BRL',
           status: 'completed',
-          order_id: formData.transacao
+          order_id: formData.transacao,
+          // ✅ DADOS ENRIQUECIDOS PARA MELHOR TARGETING:
+          predicted_ltv: 150.00,
+          customer_segment: 'high_value',
+          acquisition_channel: formData.utm_source,
+          conversion_quality: 'premium',
+          engagement_time: Math.round(engagementTime / 1000),
+          form_completion_speed: Math.round((Date.now() - window.formStartTime) / 1000),
+          device_type: window.innerWidth <= 768 ? 'mobile' : 'desktop',
+          traffic_quality: calculateTrafficQuality(formData),
+          user_intent_score: calculateIntentScore(),
+          conversion_probability: 0.95
       }, {
           eventID: sharedEventId // ✅ ID SINCRONIZADO
       });
+
+
+            // ✅ FURION POWER - MICRO-SEGMENTAÇÃO PARA CUSTOM AUDIENCES
+
+
+
+      // 1. Segmento de Alta Qualidade
+      fbq('trackCustom', 'HighQualityLead', {
+          lead_score: calculateLeadScore(formData),
+          email_domain: formData.email.split('@')[1],
+          phone_validated: formData.whatsapp.length >= 14,
+          form_completion_speed: Math.round((Date.now() - window.formStartTime) / 1000),
+          engagement_level: getEngagementLevel(),
+          traffic_source: formData.utm_source,
+          device_quality: deviceFingerprint.device_memory || 'standard'
+      }, {
+          eventID: `high_quality_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+      });
+
+
+
+      // 2. Segmento de Intenção Premium
+      if (calculateIntentScore() >= 80) {
+          fbq('trackCustom', 'PremiumIntent', {
+              intent_score: calculateIntentScore(),
+              engagement_time: Math.round(engagementTime / 1000),
+              interaction_quality: 'high',
+              conversion_readiness: 'ready',
+              customer_tier: 'premium_prospect'
+          }, {
+              eventID: `premium_intent_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+          });
+      }
+
+
+
+      // 3. Segmento de Device Quality
+      if (window.innerWidth <= 768) {
+          fbq('trackCustom', 'MobileConverter', {
+              device_type: 'mobile',
+              screen_size: `${window.innerWidth}x${window.innerHeight}`,
+              mobile_engagement: 'high',
+              touch_interactions: getTouchInteractions()
+          }, {
+              eventID: `mobile_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+          });
+      }
+
+
+
+      // 4. Segmento de Velocidade de Conversão
+      const conversionSpeed = Date.now() - window.formStartTime;
+      if (conversionSpeed < 60000) { // Menos de 1 minuto
+          fbq('trackCustom', 'FastConverter', {
+              conversion_speed: 'fast',
+              decision_time: Math.round(conversionSpeed / 1000),
+              conversion_type: 'impulse_buyer',
+              urgency_response: 'high'
+          }, {
+              eventID: `fast_converter_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+          });
+      }
+
+
+
+      // 5. Segmento de Qualidade de Tráfego
+      if (formData.utm_source !== 'direct') {
+          fbq('trackCustom', 'QualifiedTraffic', {
+              traffic_source: formData.utm_source,
+              campaign_source: formData.utm_campaign,
+              traffic_quality: calculateTrafficQuality(formData),
+              attribution_path: getAttributionPath()
+          }, {
+              eventID: `qualified_traffic_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+          });
+      }
 
 
 
@@ -470,6 +596,94 @@
     }
 
 
+        // ✅ FURION POWER - FUNÇÕES DE INTELIGÊNCIA ARTIFICIAL
+
+
+    function calculateLeadScore(formData) {
+        let score = 0;
+        
+        // Email quality
+        const emailDomain = formData.email.split('@')[1];
+        const premiumDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'icloud.com'];
+        if (premiumDomains.includes(emailDomain)) score += 25;
+        
+        // Phone quality
+        if (formData.whatsapp.length >= 14) score += 25;
+        
+        // Name quality
+        if (formData.nome.split(' ').length >= 2) score += 20;
+        
+        // Engagement quality
+        const engagementTime = Date.now() - (window.formStartTime || Date.now());
+        if (engagementTime > 30000 && engagementTime < 300000) score += 30; // 30s - 5min sweet spot
+        
+        return Math.min(score, 100);
+    }
+
+
+    function calculateIntentScore() {
+        let score = 0;
+        
+        // Time on page
+        const timeOnPage = Date.now() - (window.pageLoadTime || Date.now());
+        if (timeOnPage > 60000) score += 30; // Mais de 1 minuto
+        
+        // Scroll behavior
+        if (window.maxScrollReached >= 50) score += 25;
+        
+        // Form interactions
+        const formInteractions = window.formInteractions || 0;
+        score += Math.min(formInteractions * 5, 25);
+        
+        // UTM source quality
+        const utmSource = localStorage.getItem('utm_source');
+        if (utmSource && utmSource !== 'direct') score += 20;
+        
+        return Math.min(score, 100);
+    }
+
+
+    function calculateTrafficQuality(formData) {
+        const source = formData.utm_source;
+        const qualityMap = {
+            'google': 'high',
+            'facebook': 'high', 
+            'instagram': 'high',
+            'youtube': 'medium',
+            'tiktok': 'medium',
+            'organic': 'very_high',
+            'direct': 'high'
+        };
+        return qualityMap[source] || 'medium';
+    }
+
+
+    function getEngagementLevel() {
+        const timeOnPage = Date.now() - (window.pageLoadTime || Date.now());
+        const scrollDepth = window.maxScrollReached || 0;
+        const interactions = window.formInteractions || 0;
+        
+        if (timeOnPage > 120000 && scrollDepth > 75 && interactions > 5) return 'very_high';
+        if (timeOnPage > 60000 && scrollDepth > 50 && interactions > 3) return 'high';
+        if (timeOnPage > 30000 && scrollDepth > 25) return 'medium';
+        return 'low';
+    }
+
+
+    function getTouchInteractions() {
+        return window.touchInteractions || 0;
+    }
+
+
+    function getAttributionPath() {
+        const path = [];
+        if (document.referrer) path.push('referrer');
+        if (localStorage.getItem('utm_source')) path.push('utm');
+        if (localStorage.getItem('_fbc')) path.push('facebook');
+        return path.join(' -> ') || 'direct';
+    }
+
+
     async function sendToCAPI(endpoint, payload) {
       try {
         const response = await fetch(endpoint, {
@@ -521,35 +735,77 @@
 
     // FURION POWER - Enhanced Tracking Initialization
     document.addEventListener('DOMContentLoaded', () => {
+
+        // ✅ FURION POWER - TRACKING AVANÇADO DE COMPORTAMENTO
+      window.pageLoadTime = Date.now();
       window.formStartTime = Date.now();
+      window.formInteractions = 0;
+      window.maxScrollReached = 0;
+      window.touchInteractions = 0;
       
-      // Track form interactions
+      // Session tracking
+      if (!localStorage.getItem('session_start')) {
+          localStorage.setItem('session_start', Date.now());
+      }
+      
+      // Scroll tracking avançado
+      let scrollTimeout;
+      window.addEventListener('scroll', () => {
+          const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+          window.maxScrollReached = Math.max(window.maxScrollReached, scrollPercent);
+          
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
+              if (scrollPercent >= 25 && !window.scroll25) {
+                  window.scroll25 = true;
+                  fbq('trackCustom', 'DeepEngagement_25', { scroll_depth: 25 });
+              }
+              if (scrollPercent >= 50 && !window.scroll50) {
+                  window.scroll50 = true;
+                  fbq('trackCustom', 'DeepEngagement_50', { scroll_depth: 50 });
+              }
+              if (scrollPercent >= 75 && !window.scroll75) {
+                  window.scroll75 = true;
+                  fbq('trackCustom', 'DeepEngagement_75', { scroll_depth: 75 });
+              }
+          }, 500);
+      });
+      
+      // Touch tracking para mobile
+      document.addEventListener('touchstart', () => {
+          window.touchInteractions++;
+      });
+      
+      // ✅ FURION POWER - FORM TRACKING CONSOLIDADO
       document.querySelectorAll('.form-input').forEach(input => {
-        input.addEventListener('focus', () => {
-          if (typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'FormFieldFocus', {
-              field_name: input.name,
-              field_type: input.type
-            });
-          }
-        });
+          input.addEventListener('focus', () => {
+              window.formInteractions++; // Counter
+              
+              // Facebook tracking
+              if (typeof fbq !== 'undefined') {
+                  fbq('trackCustom', 'FormFieldFocus', {
+                      field_name: input.name,
+                      field_type: input.type
+                  });
+              }
+          });
 
+          input.addEventListener('input', debounce(() => {
+              window.formInteractions++; // Counter
+              
+              const nome = document.getElementById('nome').value;
+              const email = document.getElementById('email').value;
+              const whatsapp = document.getElementById('whatsapp').value;    
 
+      
 
-        input.addEventListener('input', debounce(() => {
-            //maybeInitiateCheckout(); // 👈 ADICIONA AQUI
-
-        const nome = document.getElementById('nome').value;
-        const email = document.getElementById('email').value;
-        const whatsapp = document.getElementById('whatsapp').value;    
-
-        if(nome.length > 5 && email.includes('@') && whatsapp.length > 10) {
-            fbq('trackCustom', 'FormFieldProgress', {
-              field_name: input.name,
-              completion_percentage: Math.round((input.value.length / 50) * 100)
-            });
-          }
-        }, 1000));  
+              if(nome.length > 5 && email.includes('@') && whatsapp.length > 10) {
+                  fbq('trackCustom', 'FormFieldProgress', {
+                      field_name: input.name,
+                      completion_percentage: Math.round((input.value.length / 50) * 100)
+                  });
+              }
+          }, 1000));  
       });
 
       

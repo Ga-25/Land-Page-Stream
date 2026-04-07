@@ -40,7 +40,15 @@
 
 
   // ✅ MESMO PIXEL ID DO ATIVAR_CADASTRO
-  fbq('init', '1265874438298153'); // StreamForce Principal
+  // ✅ FURION POWER - ADVANCED MATCHING SINCRONIZADO
+fbq('init', '1265874438298153', {
+    // Enhanced matching automático
+    automatic_matching: true,
+    autoConfig: true
+}, {
+    agent: 'plat'
+});
+ // StreamForce Principal
 
 function getCookie(name) {
 const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
@@ -249,6 +257,32 @@ return match ? decodeURIComponent(match[2]) : null;
         return eventId;
     }
 
+        // ✅ FURION POWER - DEVICE FINGERPRINTING PARA CONFIRMAÇÃO
+    function initDeviceFingerprintConfirmation() {
+        // Recuperar fingerprint do registro ou criar novo
+        let deviceInfo = JSON.parse(localStorage.getItem('device_fingerprint') || '{}');
+        
+        if (!deviceInfo.screen_resolution) {
+            deviceInfo = {
+                screen_resolution: `${screen.width}x${screen.height}`,
+                color_depth: screen.colorDepth,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                language: navigator.language,
+                platform: navigator.platform,
+                device_memory: navigator.deviceMemory || 'unknown',
+                connection_type: navigator.connection ? navigator.connection.effectiveType : 'unknown'
+            };
+            localStorage.setItem('device_fingerprint', JSON.stringify(deviceInfo));
+        }
+        
+        console.log('🔥 Device fingerprint confirmação:', deviceInfo);
+        return deviceInfo;
+    }
+
+
+    // Executar na confirmação
+    initDeviceFingerprintConfirmation();
+
 
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -290,7 +324,14 @@ return match ? decodeURIComponent(match[2]) : null;
 
     
 
-        // ✅ BROWSER PURCHASE EVENT
+        // ✅ FURION POWER - PURCHASE COM ENHANCED CONVERSIONS DEVASTADORAS
+        const deviceFingerprint = JSON.parse(localStorage.getItem('device_fingerprint') || '{}');
+        const sessionDuration = Date.now() - parseInt(localStorage.getItem('session_start') || Date.now());
+        const registrationTime = parseInt(localStorage.getItem('registration_time') || Date.now());
+        const conversionJourney = Date.now() - registrationTime;
+
+     
+
         fbq('track', 'Purchase', {
             content_ids: ['furion-tv-premium'],
             content_name: 'FURION TV Premium Subscription',
@@ -299,8 +340,21 @@ return match ? decodeURIComponent(match[2]) : null;
             value: 25.00,
             currency: 'BRL',
             order_id: transactionId,
+            num_items: 1,
+            // ✅ ENHANCED CONVERSIONS PREMIUM:
             predicted_ltv: 150.00,
-            num_items: 1
+            customer_segment: 'premium_confirmed',
+            acquisition_channel: localStorage.getItem('utm_source') || 'direct',
+            conversion_funnel: 'registration_to_purchase',
+            customer_quality: 'high_value',
+            session_duration: Math.round(sessionDuration / 1000),
+            conversion_journey_time: Math.round(conversionJourney / 1000),
+            device_fingerprint_id: generateDeviceId(),
+            purchase_confidence: 1.0,
+            customer_tier: 'premium',
+            subscription_type: 'monthly_premium',
+            payment_readiness: 'immediate',
+            retention_probability: 0.85
         }, {
             eventID: purchaseEventId // ✅ ID SINCRONIZADO
         });
@@ -308,14 +362,61 @@ return match ? decodeURIComponent(match[2]) : null;
     
 
         // ✅ CUSTOM EVENTS COM IDs ÚNICOS
-        fbq('trackCustom', 'PremiumPurchaseComplete', {
-            purchase_type: 'premium_subscription',
-            customer_segment: 'high_value',
-            conversion_path: 'direct_registration',
+        // ✅ FURION POWER - CUSTOM EVENTS DE VALOR PREMIUM
+
+     
+
+        // 1. Confirmed Premium Customer
+        fbq('trackCustom', 'PremiumCustomerConfirmed', {
+            customer_type: 'premium_subscriber',
             subscription_tier: 'premium',
-            order_id: transactionId
+            customer_value: 25.00,
+            lifetime_value: 150.00,
+            retention_score: 85,
+            purchase_confidence: 'confirmed',
+            subscription_status: 'active'
         }, {
-            eventID: `custom_purchase_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+            eventID: `premium_confirmed_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        });
+
+     
+
+        // 2. High Value Conversion
+        fbq('trackCustom', 'HighValueConversion', {
+            conversion_value: 25.00,
+            conversion_type: 'subscription',
+            customer_segment: 'premium',
+            conversion_quality: 'high',
+            payment_method: 'immediate',
+            conversion_source: localStorage.getItem('utm_source') || 'direct'
+        }, {
+            eventID: `high_value_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        });
+
+     
+
+        // 3. Retention Probability Signal
+        fbq('trackCustom', 'HighRetentionProbability', {
+            retention_score: 85,
+            engagement_quality: 'premium',
+            customer_journey: 'complete',
+            satisfaction_indicator: 'high',
+            churn_risk: 'low'
+        }, {
+            eventID: `retention_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        });
+
+     
+
+        // 4. Lookalike Seed Quality
+        fbq('trackCustom', 'LookalikeSeedQuality', {
+            seed_quality: 'premium',
+            conversion_speed: calculateConversionSpeed(),
+            engagement_depth: 'high',
+            customer_value_tier: 'top_25_percent',
+            behavioral_score: 95
+        }, {
+            eventID: `seed_quality_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
         });
 
     
@@ -389,7 +490,40 @@ return match ? decodeURIComponent(match[2]) : null;
 
 
     // ✅ FUNÇÃO HASH IDÊNTICA AO ATIVAR_CADASTRO
+    // ✅ FURION POWER - FUNÇÕES DE CÁLCULO PREMIUM
 
+    
+
+    function generateDeviceId() {
+        const deviceFingerprint = JSON.parse(localStorage.getItem('device_fingerprint') || '{}');
+        const components = [
+            deviceFingerprint.screen_resolution,
+            deviceFingerprint.timezone,
+            deviceFingerprint.language,
+            navigator.userAgent.substring(0, 50)
+        ].join('_');
+        
+        // Simple hash for device ID
+        let hash = 0;
+        for (let i = 0; i < components.length; i++) {
+            const char = components.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        return Math.abs(hash).toString(36);
+    }
+
+    
+
+    function calculateConversionSpeed() {
+        const registrationTime = parseInt(localStorage.getItem('registration_time') || Date.now());
+        const conversionTime = Date.now() - registrationTime;
+        
+        if (conversionTime < 60000) return 'instant'; // < 1 min
+        if (conversionTime < 300000) return 'fast'; // < 5 min
+        if (conversionTime < 1800000) return 'normal'; // < 30 min
+        return 'slow';
+    }
 
 
 
