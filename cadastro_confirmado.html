@@ -432,9 +432,25 @@ return match ? decodeURIComponent(match[2]) : null;
 
     
 
+                // ✅ TELEFONE CONSISTENTE COM OUTRAS PÁGINAS
                 let phoneForCAPI = userData.phone ? userData.phone.replace(/\D/g, '') : '';
-                if (phoneForCAPI.length === 11 && !phoneForCAPI.startsWith('55')) {
-                    phoneForCAPI = '55' + phoneForCAPI;
+
+                
+                console.log('📱 Confirmação - Telefone recuperado:', userData.phone);
+                console.log('📱 Confirmação - Telefone limpo:', phoneForCAPI);
+
+              
+                if (phoneForCAPI) {
+                    // ✅ MESMA LÓGICA DO FRONT-END
+                    if (phoneForCAPI.length === 10) {
+                        phoneForCAPI = phoneForCAPI.substring(0, 2) + '9' + phoneForCAPI.substring(2);
+                    }
+                    
+                    if (phoneForCAPI.length === 11 && !phoneForCAPI.startsWith('55')) {
+                        phoneForCAPI = '55' + phoneForCAPI;
+                    }
+                    
+                    console.log('📱 Confirmação - Telefone FINAL:', phoneForCAPI);
                 }
 
     

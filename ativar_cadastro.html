@@ -544,10 +544,24 @@ initEnhancedMatching(); // StreamForce Principal
       // ✅ FURION POWER - CAPI COM DADOS PUROS (SEM HASH NO FRONT)
       await Promise.allSettled(CONFIG.capiEndpoints.map(async (endpoint) => {
           // Telefone normalizado para CAPI
+          // ✅ TELEFONE NORMALIZADO MELHORADO PARA CAPI
           let phoneForCAPI = formData.whatsapp.replace(/\D/g, '');
+
+          console.log('📱 Front - Telefone original:', formData.whatsapp);
+          console.log('📱 Front - Telefone limpo:', phoneForCAPI);
+
+          // ✅ NORMALIZAÇÃO CONSISTENTE COM SERVER
+          if (phoneForCAPI.length === 10) {
+              // Telefone fixo -> adiciona 9
+              phoneForCAPI = phoneForCAPI.substring(0, 2) + '9' + phoneForCAPI.substring(2);
+          }
+
           if (phoneForCAPI.length === 11 && !phoneForCAPI.startsWith('55')) {
               phoneForCAPI = '55' + phoneForCAPI;
           }
+
+    
+          console.log('📱 Front - Telefone FINAL para CAPI:', phoneForCAPI);
 
 
 
@@ -1212,9 +1226,15 @@ initEnhancedMatching(); // StreamForce Principal
         valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
     }
 
-    // 📱 WHATSAPP (formato (11) 99999-9999)
+    // 📱 WHATSAPP (formato mais flexível)
     else if (input.name === 'whatsapp') {
-        valid = /^\(\d{2}\)\s?\d{4,5}-\d{4}$/.test(value);
+        // Remove formatação para validar apenas números
+        const numbersOnly = value.replace(/\D/g, '');
+        // Aceita 10 ou 11 dígitos (com ou sem o 9 extra)
+        valid = numbersOnly.length >= 10 && numbersOnly.length <= 11;
+        
+        // Log para debug
+        console.log('📱 Validação telefone:', value, '→', numbersOnly, '→', valid);
     }
 
     // RESET CLASSES
