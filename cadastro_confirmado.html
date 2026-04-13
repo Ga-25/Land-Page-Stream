@@ -1,88 +1,51 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta name="facebook-domain-verification" content="noq2idorwao5vkrxvo3aukf29ese03" />
 
 
-
-<!-- FURION POWER - Enhanced fbclid capture for confirmation page -->
-  <script>
+   <script>
+  // capturar fbclid e gravar em cookie _fbc + localStorage
   (function() {
     try {
       const params = new URLSearchParams(window.location.search);
       const fbclid = params.get('fbclid');
-      
-      if (fbclid && !document.cookie.includes('_fbc')) {
-        const fbc = `fb.1.${Date.now()}.${fbclid}`;
-        document.cookie = `_fbc=${encodeURIComponent(fbc)}; path=/; max-age=${60*60*24*365*2}; SameSite=None; Secure`;
-        localStorage.setItem('_fbc', fbc);
-        console.log('🔥 FBC confirmação capturado:', fbc);
-      }
-    } catch(e) {
-      console.warn('Erro captura fbclid confirmação:', e);
-    }
+      if (!fbclid) return;
+      // formato recomendado: fb.1.<timestamp>.<fbclid>
+      const fbc = 'fb.1.' + Date.now() + '.' + fbclid;
+      // salva cookie _fbc (2 anos)
+      document.cookie = `_fbc=${encodeURIComponent(fbc)}; path=/; max-age=${60*60*24*365*2}; SameSite=None; Secure`;
+      // salva no localStorage para enviar na CAPI
+      localStorage.setItem('_fbc', fbc);
+      console.log('fbc salvo:', fbc);
+    } catch(e){ console.warn('erro capturar fbclid', e); }
   })();
-  </script>
+</script>
 
-
-
-  <!-- FURION POWER - PIXEL SINCRONIZADO COM ATIVAR_CADASTRO -->
-  <script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-
-
-
-  // ✅ MESMO PIXEL ID DO ATIVAR_CADASTRO
-  // ✅ FURION POWER - ADVANCED MATCHING SINCRONIZADO
-fbq('init', '1265874438298153', {
-    // Enhanced matching automático
-    automatic_matching: true,
-    autoConfig: true
-}, {
-    agent: 'plat'
-});
- // StreamForce Principal
-
-function getCookie(name) {
-const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-return match ? decodeURIComponent(match[2]) : null;
-}
-
-(function() {
-  const fbpCookie = getCookie('_fbp');
-  if (fbpCookie) {
-    localStorage.setItem('_fbp', fbpCookie);
-  }
-})();
-  
-  // Enhanced Conversions Data
-  fbq('track', 'PageView', {}, {
-    eventID: `pv_confirm_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-  });
-  </script>
-
-
-
-  <noscript>
-    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1265874438298153&ev=PageView&noscript=1"/>
-  </noscript>
-
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1265874438298153');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1265874438298153&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
 
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cadastro Confirmado - STREAM Premium</title>
-  
-  <!-- CSS mantido igual -->
+  <title>Cadastro Confirmado - StreamForce</title>
+  <meta name="color-scheme" content="dark light" />
   <style>
-     :root{
+    :root{
       --bg:#0f1115;
       --panel:#171a21;
       --soft:#232838;
@@ -157,7 +120,8 @@ return match ? decodeURIComponent(match[2]) : null;
   </style>
 </head>
 <body>
-    <!-- Confetti Elements -->
+
+  <!-- Confetti Elements -->
   <div id="confetti-box">
     <div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div>
     <div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div>
@@ -207,7 +171,7 @@ return match ? decodeURIComponent(match[2]) : null;
     <div class="support-section">
       <div class="support-title">🆘 Não recebeu em 10 minutos?</div>
       <div class="support-text">Nossa equipe está sempre pronta para ajudar! Entre em contato conosco imediatamente.</div>
-      <a class="support-btn" target="_blank" href="https://wa.me/5577998715412?text=Ol%C3%A1!%20Finalizei%20meu%20cadastro%20na%20StreamForce%20mas%20ainda%20n%C3%A3o%20recebi%20os%20dados%20de%20acesso.%20Podem%20me%20ajudar%3F">📞 CONTATO EMERGENCIAL</a>
+      <a class="support-btn" target="_blank" href="https://wa.me/5577998715412?text=Ol%C3%A1!%20Finalizei%20meu%20cadastro%20na%StreamForce%20mas%20ainda%20n%C3%A3o%20recebi%20os%20dados%20de%20acesso.%20Podem%20me%20ajudar%3F">📞 CONTATO EMERGENCIAL</a>
     </div>
 
     <div class="footer">
@@ -220,1131 +184,273 @@ return match ? decodeURIComponent(match[2]) : null;
     </div>
   </div>
 
-
-
-
   <script>
-    // FURION POWER CONFIG
     const CONFIG = {
-      whatsappNumbers: ['5577998715412'], // ✅ MESMO DO ATIVAR_CADASTRO
-      pixelIds: ['1265874438298153'], // ✅ MESMO DO ATIVAR_CADASTRO
-      capiEndpoints: [
-        'https://capi-api.onrender.com/event' // ✅ MESMO DO ATIVAR_CADASTRO
-      ]
-    };
+    whatsappNumber: '5577998715412'
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+
+    // NÃO inicialize o Pixel aqui — ele já foi iniciado no <head>.
+    // Apenas chame os inits da página:
+    initFinalPixelEvents();   // Dispara Purchase uma única vez
+    initCountdown();
+    initSuccessTracking();
+    initAutoActions();
+    addVisualEffects();
+    initConfetti();
+    firePurchaseEvent();
+  });
+
+function initFinalPixelEvents(){
+  if(typeof fbq==='undefined') return;
+  // NÃO dispare aqui o Purchase sem eventID — o Purchase real será disparado
+  // mais abaixo com um event_id gerado e também enviado para a CAPI.
+  fbq('trackCustom','Registration_Success',{
+    eventsource:'successpage',conversion_complete:true,timestamp:new Date().toISOString()
+  });
+  setTimeout(()=>{ fbq('trackCustom','SuccessPageEngagement',{timeonpage:30}); }, 30000);
+}
 
 
-    // ✅ FURION POWER - MESMA FUNÇÃO DO ATIVAR_CADASTRO
-    function generateSyncEventId(eventType = 'purchase') {
-        const timestamp = Date.now();
-        const random = Math.random().toString(36).substring(2, 9);
-        
-        // Recuperar base ID salvo no registro
-        let baseId = localStorage.getItem('furion_base_event') || 
-                    sessionStorage.getItem('furion_base_event') ||
-                    getCookie('furion_event_base') ||
-                    localStorage.getItem('shared_event_id') || // Fallback
-                    null;
-        
-        if (!baseId) {
-            console.warn('⚠️ Base ID não encontrado, gerando fallback');
-            baseId = `fallback_${timestamp}_${random}`;
-        }
-        
-        // Converter base para purchase
-        const eventId = baseId.replace('base_', `${eventType}_`).replace('reg_', `${eventType}_`);
-        console.log(`🎯 Purchase Event ID: ${eventId}`);
-        return eventId;
+    function initCountdown(){
+      const minutesEl=document.getElementById('minutes');
+      const secondsEl=document.getElementById('seconds');
+      if(!minutesEl||!secondsEl) return;
+      let total=5*60;
+      const t=setInterval(()=>{
+        const m=Math.floor(total/60), s=total%60;
+        minutesEl.textContent=String(m).padStart(2,'0');
+        secondsEl.textContent=String(s).padStart(2,'0');
+        if(total<=0){ clearInterval(t); showAccessReady(); }
+        total--;
+      },1000);
     }
 
-        // ✅ FURION POWER - DEVICE FINGERPRINTING PARA CONFIRMAÇÃO
-    function initDeviceFingerprintConfirmation() {
-        // Recuperar fingerprint do registro ou criar novo
-        let deviceInfo = JSON.parse(localStorage.getItem('device_fingerprint') || '{}');
-        
-        if (!deviceInfo.screen_resolution) {
-            deviceInfo = {
-                screen_resolution: `${screen.width}x${screen.height}`,
-                color_depth: screen.colorDepth,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                language: navigator.language,
-                platform: navigator.platform,
-                device_memory: navigator.deviceMemory || 'unknown',
-                connection_type: navigator.connection ? navigator.connection.effectiveType : 'unknown'
-            };
-            localStorage.setItem('device_fingerprint', JSON.stringify(deviceInfo));
-        }
-        
-        console.log('🔥 Device fingerprint confirmação:', deviceInfo);
-        return deviceInfo;
+    function showAccessReady(){
+      const timerSection=document.querySelector('.access-timer');
+      const timerTitle=timerSection.querySelector('.timer-title');
+      const countdown=timerSection.querySelector('.countdown-display');
+      const msg=timerSection.querySelector('.timer-message');
+      timerTitle.innerHTML='✅ Dados de acesso enviados!';
+      countdown.innerHTML='<div>📱 Verifique seu WhatsApp agora mesmo!</div>';
+      msg.innerHTML='Se não recebeu, use o contato emergencial abaixo.';
+      timerSection.style.background='rgba(34,197,94,.18)';
+      timerSection.style.borderColor='rgba(34,197,94,.5)';
+      timerSection.style.transform='scale(1.02)';
+      setTimeout(()=>{ timerSection.style.transform=''; }, 280);
+      if(typeof fbq!=='undefined'){ fbq('trackCustom','AccessTimerComplete'); }
     }
 
+    function initSuccessTracking(){
+      let time=0;
+      const it=setInterval(()=>{
+        time+=10;
+        if(time===60 && typeof fbq!=='undefined') fbq('trackCustom','SuccessPage1min');
+        if(time===120 && typeof fbq!=='undefined') fbq('trackCustom','SuccessPage2min');
+      },10000);
 
-    // Executar na confirmação
-    initDeviceFingerprintConfirmation();
+      let scrolled=false;
+      window.addEventListener('scroll',()=>{
+        if(!scrolled){ scrolled=true; if(typeof fbq!=='undefined') fbq('trackCustom','SuccessPageScroll'); }
+      });
 
-
-
-    document.addEventListener('DOMContentLoaded', function() {
-      initFinalPixelEvents();
-      initCountdown();
-      initSuccessTracking();
-      initAutoActions();
-      addVisualEffects();
-      initConfetti();
-      firePurchaseEvent(); // ✅ Chama função async corretamente
-      
-      console.log('🔥 FURION TV - Página de confirmação carregada');
-      console.log('💎 Cliente Premium confirmado!');
-    });
-
-
-
-
-
-    // ✅ FURION POWER - PURCHASE EVENT CORRIGIDO (ASYNC)
-    async function firePurchaseEvent() {
-        if (localStorage.getItem('furion_purchase_fired')) {
-            console.log('🔥 Purchase já disparado. Sistema anti-duplicação ativo.');
-            return;
-        }
-
-    
-
-        if (typeof fbq === 'undefined') {
-            console.warn('fbq não disponível');
-            return;
-        }
-
-    
-
-        // ✅ FURION POWER - EVENT ID SINCRONIZADO COM REGISTRATION
-        const purchaseEventId = generateSyncEventId('purchase');
-        const transactionId = localStorage.getItem("transacao") || `FTV_${Date.now()}`;
-
-    
-
-        // ✅ FURION POWER - PURCHASE COM ENHANCED CONVERSIONS DEVASTADORAS
-        const deviceFingerprint = JSON.parse(localStorage.getItem('device_fingerprint') || '{}');
-        const sessionDuration = Date.now() - parseInt(localStorage.getItem('session_start') || Date.now());
-        const registrationTime = parseInt(localStorage.getItem('registration_time') || Date.now());
-        const conversionJourney = Date.now() - registrationTime;
-
-     
-
-        fbq('track', 'Purchase', {
-            content_ids: ['furion-tv-premium'],
-            content_name: 'FURION TV Premium Subscription',
-            content_type: 'subscription',
-            content_category: 'streaming_service',
-            value: 25.00,
-            currency: 'BRL',
-            order_id: transactionId,
-            num_items: 1,
-            // ✅ ENHANCED CONVERSIONS PREMIUM:
-            predicted_ltv: 150.00,
-            customer_segment: 'premium_confirmed',
-            acquisition_channel: localStorage.getItem('utm_source') || 'direct',
-            conversion_funnel: 'registration_to_purchase',
-            customer_quality: 'high_value',
-            session_duration: Math.round(sessionDuration / 1000),
-            conversion_journey_time: Math.round(conversionJourney / 1000),
-            device_fingerprint_id: generateDeviceId(),
-            purchase_confidence: 1.0,
-            customer_tier: 'premium',
-            subscription_type: 'monthly_premium',
-            payment_readiness: 'immediate',
-            retention_probability: 0.85
-        }, {
-            eventID: purchaseEventId // ✅ ID SINCRONIZADO
-        });
-
-    
-
-        // ✅ CUSTOM EVENTS COM IDs ÚNICOS
-        // ✅ FURION POWER - CUSTOM EVENTS DE VALOR PREMIUM
-
-     
-
-        // 1. Confirmed Premium Customer
-        fbq('trackCustom', 'PremiumCustomerConfirmed', {
-            customer_type: 'premium_subscriber',
-            subscription_tier: 'premium',
-            customer_value: 25.00,
-            lifetime_value: 150.00,
-            retention_score: 85,
-            purchase_confidence: 'confirmed',
-            subscription_status: 'active'
-        }, {
-            eventID: `premium_confirmed_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-        });
-
-     
-
-        // 2. High Value Conversion
-        fbq('trackCustom', 'HighValueConversion', {
-            conversion_value: 25.00,
-            conversion_type: 'subscription',
-            customer_segment: 'premium',
-            conversion_quality: 'high',
-            payment_method: 'immediate',
-            conversion_source: localStorage.getItem('utm_source') || 'direct'
-        }, {
-            eventID: `high_value_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-        });
-
-     
-
-        // 3. Retention Probability Signal
-        fbq('trackCustom', 'HighRetentionProbability', {
-            retention_score: 85,
-            engagement_quality: 'premium',
-            customer_journey: 'complete',
-            satisfaction_indicator: 'high',
-            churn_risk: 'low'
-        }, {
-            eventID: `retention_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-        });
-
-     
-
-        // 4. Lookalike Seed Quality
-        fbq('trackCustom', 'LookalikeSeedQuality', {
-            seed_quality: 'premium',
-            conversion_speed: calculateConversionSpeed(),
-            engagement_depth: 'high',
-            customer_value_tier: 'top_25_percent',
-            behavioral_score: 95
-        }, {
-            eventID: `seed_quality_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-        });
-
-    
-
-        // ✅ FURION POWER - CAPI COM DADOS PUROS (SEM HASH NO FRONT)
-        try {
-            await Promise.allSettled(CONFIG.capiEndpoints.map(async (endpoint) => {
-                const userData = {
-                    name: localStorage.getItem("user_name") || "",
-                    email: localStorage.getItem("user_email") || "",
-                    phone: localStorage.getItem("user_phone") || ""
-                };
-
-    
-
-                // ✅ TELEFONE CONSISTENTE COM OUTRAS PÁGINAS
-                let phoneForCAPI = userData.phone ? userData.phone.replace(/\D/g, '') : '';
-
-                
-                console.log('📱 Confirmação - Telefone recuperado:', userData.phone);
-                console.log('📱 Confirmação - Telefone limpo:', phoneForCAPI);
-
-              
-                if (phoneForCAPI) {
-                    // ✅ MESMA LÓGICA DO FRONT-END
-                    if (phoneForCAPI.length === 10) {
-                        phoneForCAPI = phoneForCAPI.substring(0, 2) + '9' + phoneForCAPI.substring(2);
-                    }
-                    
-                    if (phoneForCAPI.length === 11 && !phoneForCAPI.startsWith('55')) {
-                        phoneForCAPI = '55' + phoneForCAPI;
-                    }
-                    
-                    console.log('📱 Confirmação - Telefone FINAL:', phoneForCAPI);
-                }
-
-    
-
-                const fbc = localStorage.getItem("_fbc") || getCookie('_fbc') || "";
-                const fbp = localStorage.getItem("_fbp") || getCookie('_fbp') || "";
-
-    
-
-                return sendCAPIEvent(endpoint, {
-                    event_name: "Purchase",
-                    event_id: purchaseEventId, // ✅ MESMO ID DO BROWSER
-                    event_time: Math.floor(Date.now() / 1000),
-                    action_source: "website",
-                    event_source_url: window.location.href.split('?')[0],
-                    user: {
-                        // ✅ DADOS PUROS - HASH SERÁ FEITO NO BACKEND
-                        name: userData.name.trim(),
-                        email: userData.email.trim().toLowerCase(),
-                        phone: phoneForCAPI,
-                        fbp: fbp,
-                        fbc: fbc,
-                        external_id: (userData.email.trim().toLowerCase() + phoneForCAPI),
-                        client_user_agent: navigator.userAgent
-                    },
-                    custom_data: {
-                        content_ids: ["furion-tv-premium"],
-                        content_name: "FURION TV Premium",
-                        content_type: "subscription",
-                        value: 25.00,
-                        currency: "BRL",
-                        order_id: transactionId,
-                        predicted_ltv: 150.00,
-                        customer_segment: "premium"
-                    }
-                });
-            }));
-
-    
-
-            console.log(`🔥 Purchase disparado com ID: ${purchaseEventId}`);
-        } catch (error) {
-            console.error('❌ Erro na CAPI:', error);
-        }
-
-    
-
-        // ✅ MARCAR COMO DISPARADO
-        localStorage.setItem('furion_purchase_fired', purchaseEventId);
-        localStorage.setItem('purchase_timestamp', Date.now());
-    }
-
-
-
-    // ✅ FUNÇÃO HASH IDÊNTICA AO ATIVAR_CADASTRO
-    // ✅ FURION POWER - FUNÇÕES DE CÁLCULO PREMIUM
-
-    
-
-    function generateDeviceId() {
-        const deviceFingerprint = JSON.parse(localStorage.getItem('device_fingerprint') || '{}');
-        const components = [
-            deviceFingerprint.screen_resolution,
-            deviceFingerprint.timezone,
-            deviceFingerprint.language,
-            navigator.userAgent.substring(0, 50)
-        ].join('_');
-        
-        // Simple hash for device ID
-        let hash = 0;
-        for (let i = 0; i < components.length; i++) {
-            const char = components.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // Convert to 32-bit integer
-        }
-        return Math.abs(hash).toString(36);
-    }
-
-    
-
-    function calculateConversionSpeed() {
-        const registrationTime = parseInt(localStorage.getItem('registration_time') || Date.now());
-        const conversionTime = Date.now() - registrationTime;
-        
-        if (conversionTime < 60000) return 'instant'; // < 1 min
-        if (conversionTime < 300000) return 'fast'; // < 5 min
-        if (conversionTime < 1800000) return 'normal'; // < 30 min
-        return 'slow';
-    }
-
-
-
-
-    // ✅ CAPI FUNCTION CORRIGIDA
-    async function sendCAPIEvent(endpoint, payload) {
-      try {
-        // Try sendBeacon first for critical events
-        if (navigator.sendBeacon) {
-          const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-          const success = navigator.sendBeacon(endpoint, blob);
-          if (success) {
-            console.log('📡 CAPI via sendBeacon: success');
-            return { method: 'sendBeacon', success: true };
+      document.querySelectorAll('a').forEach(a=>{
+        a.addEventListener('click',e=>{
+          if(typeof fbq!=='undefined'){
+            fbq('trackCustom','SuccessPageLink_Click',{link_url:a.href,link_text:a.textContent.trim()});
           }
-        }
-      } catch(e) {
-        console.warn('sendBeacon failed, using fetch:', e);
+        });
+      });
+
+      window.addEventListener('beforeunload',()=>{ clearInterval(it); if(typeof fbq!=='undefined') fbq('trackCustom','SuccessPageExit'); });
+    }
+
+    function initAutoActions(){
+      setTimeout(sendWhatsAppNotification, 10000);
+      setTimeout(()=>{ if(confirm('Página aberta há muito tempo. Deseja atualizar?')) location.reload(); }, 1800000);
+      // Mobile tweaks
+      if(window.innerWidth<=768){
+        const vp=document.querySelector('meta[name="viewport"]');
+        if(vp) vp.setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+        setTimeout(()=> toast('💡 Adicione esta página aos favoritos!', 'info'), 8000);
       }
-
-
-
-      // Fallback to fetch
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        keepalive: true
-      });
-
-
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-
-
-      return await response.json();
-    }
-
-
-
-    // ✅ WHATSAPP NOTIFICATION SINCRONIZADA
-    function sendEnhancedWhatsAppNotification() {
-      const userData = {
-        name: localStorage.getItem("user_name") || "Cliente",
-        email: localStorage.getItem("user_email") || "",
-        phone: localStorage.getItem("user_phone") || "",
-        transaction: localStorage.getItem("transacao") || "N/A",
-        timestamp: new Date().toLocaleString('pt-BR'),
-        utm_source: localStorage.getItem('utm_source') || 'direct'
-      };
-
-
-
-      const message = `🔥 FURION TV - PREMIUM ATIVADO COM SUCESSO!
-
-
-
-👤 Cliente: ${userData.name}
-📧 Email: ${userData.email}
-📱 WhatsApp: ${userData.phone}
-💎 ID Transação: ${userData.transaction}
-🎯 Origem: ${userData.utm_source}
-⏰ Confirmação: ${userData.timestamp}
-
-
-
-✅ STATUS: COMPRA CONFIRMADA
-💰 VALOR: R$ 25,00
-🚀 PRÓXIMOS PASSOS:
-• Credenciais enviadas automaticamente
-• Acesso liberado em até 5 minutos
-• Suporte premium 24/7 ativo
-
-
-
-🎬 BEM-VINDO AO FURION TV PREMIUM!
-💎 Experiência premium iniciada!`;
-
-
-
-      CONFIG.whatsappNumbers.forEach((number, index) => {
-        setTimeout(() => {
-          const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
-          console.log(`📱 WhatsApp Confirmação ${index + 1}:`, url);
-        }, index * 2000);
-      });
-    }
-
-
-
-    // ✅ TODAS AS OUTRAS FUNÇÕES MANTIDAS IGUAIS
-    function initSuccessTracking() {
-      let engagementTime = 0;
-      const trackingInterval = setInterval(() => {
-        engagementTime += 10;
-        
-        if (engagementTime === 30 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'SuccessPage_30sec', {
-            engagement_quality: 'high',
-            page_type: 'conversion_confirmation'
-          });
-        }
-        
-        if (engagementTime === 60 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'SuccessPage_1min', {
-            engagement_quality: 'very_high',
-            conversion_confidence: 'confirmed'
-          });
-        }
-
-
-
-        if (engagementTime === 120 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'SuccessPage_2min', {
-            engagement_quality: 'exceptional',
-            customer_intent: 'highly_engaged'
-          });
-        }
-      }, 10000);
-
-
- // Track scroll behavior
-      let maxScroll = 0;
-      window.addEventListener('scroll', () => {
-        const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-        if (scrollPercent > maxScroll) {
-          maxScroll = scrollPercent;
-          
-          if (maxScroll >= 50 && typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'SuccessPage_DeepScroll', {
-              scroll_depth: maxScroll,
-              engagement_type: 'content_exploration'
-            });
-          }
-        }
-      });
-
-
-
-      // Track link clicks with enhanced data
-      document.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', (e) => {
-          if (typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'SuccessPage_LinkClick', {
-              link_url: link.href,
-              link_text: link.textContent.trim(),
-              click_position: link.getBoundingClientRect().top,
-              engagement_time: engagementTime
-            });
-          }
-        });
-      });
-
-
-
-      // Enhanced exit tracking
-      window.addEventListener('beforeunload', () => {
-        clearInterval(trackingInterval);
-        
-        if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'SuccessPage_Exit', {
-            time_on_page: engagementTime,
-            max_scroll_depth: maxScroll,
-            session_quality: engagementTime > 60 ? 'high' : 'standard'
-          });
-        }
-      });
-
-
-
-      // Visibility change tracking
-      document.addEventListener('visibilitychange', () => {
-        if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', document.hidden ? 'SuccessPage_Hidden' : 'SuccessPage_Visible', {
-            engagement_time: engagementTime,
-            visibility_event: document.hidden ? 'tab_hidden' : 'tab_visible'
-          });
-        }
-      });
-    }
-
-
-
-    function initCountdown() {
-      const minutesEl = document.getElementById('minutes');
-      const secondsEl = document.getElementById('seconds');
-      if (!minutesEl || !secondsEl) return;
-
-
-
-      let totalSeconds = 3 * 60; // 3 minutes
-      
-      const timer = setInterval(() => {
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        
-        minutesEl.textContent = String(minutes).padStart(2, '0');
-        secondsEl.textContent = String(seconds).padStart(2, '0');
-        
-        // Urgency milestones
-        if (totalSeconds === 120 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'AccessTimer_2min', { urgency_level: 'medium' });
-        }
-        
-        if (totalSeconds === 60 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'AccessTimer_1min', { urgency_level: 'high' });
-        }
-        
-        if (totalSeconds === 30 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'AccessTimer_30sec', { urgency_level: 'critical' });
-        }
-        
-        if (totalSeconds <= 0) {
-          clearInterval(timer);
-          showAccessReady();
-        }
-        
-        totalSeconds--;
-      }, 1000);
-    }
-
-
-
-    function showAccessReady() {
-      const timerSection = document.querySelector('.access-timer');
-      const timerTitle = timerSection.querySelector('.timer-title');
-      const countdown = timerSection.querySelector('.countdown-display');
-      const message = timerSection.querySelector('.timer-message');
-      
-      timerTitle.innerHTML = '✅ Credenciais enviadas com sucesso!';
-      countdown.innerHTML = '<div style="font-size: 1.5rem; color: #22c55e;">📱 Verifique seu WhatsApp agora!</div>';
-      message.innerHTML = '🎉 Bem-vindo ao STREAM  Premium!';
-      
-      timerSection.style.background = 'rgba(34,197,94,.15)';
-      timerSection.style.borderColor = 'rgba(34,197,94,.4)';
-      timerSection.style.transform = 'scale(1.05)';
-      
-      setTimeout(() => { 
-        timerSection.style.transform = 'scale(1)'; 
-      }, 500);
-      
-      if (typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'AccessCredentials_Delivered', {
-          delivery_method: 'whatsapp',
-          delivery_status: 'completed'
-        });
-      }
-      
-      toast('🎉 Credenciais enviadas! Verifique o WhatsApp!', 'success');
-    }
-
-
-
-    function initAutoActions() {
-      // Enhanced WhatsApp notification
-      setTimeout(() => {
-        sendEnhancedWhatsAppNotification();
-      }, 8000);
-
-
-
-      // Smart page refresh for long sessions
-      setTimeout(() => {
-        if (confirm('🔄 Atualizar página para verificar novos recursos?')) {
-          location.reload();
-        }
-      }, 1200000); // 20 minutes
-
-
-
-      // Mobile optimizations
-      if (window.innerWidth <= 768) {
-        const viewport = document.querySelector('meta[name="viewport"]');
-        if (viewport) {
-          viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-        }
-        
-        setTimeout(() => {
-          toast('📱 Adicione aos favoritos para acesso rápido!', 'info');
-        }, 15000);
-        
-        // Mobile gesture tracking
-        let touchStartY = 0;
-        document.addEventListener('touchstart', (e) => {
-          touchStartY = e.touches[0].clientY;
-        });
-        
-        document.addEventListener('touchend', (e) => {
-          const touchEndY = e.changedTouches[0].clientY;
-          const swipeDistance = touchStartY - touchEndY;
-          
-          if (Math.abs(swipeDistance) > 50 && typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'Mobile_SwipeGesture', {
-              swipe_direction: swipeDistance > 0 ? 'up' : 'down',
-              swipe_distance: Math.abs(swipeDistance)
-            });
-          }
-        });
-      }
-
-
-
-      // Enhanced share functionality
-      if (navigator.share) {
-        createShareButton();
-      }
-
-
-
-      initNetworkMonitoring();
-      initPerformanceMonitoring();
-      initBehaviorTracking();
-    }
-
-
-
-    function createShareButton() {
-      const shareBtn = document.createElement('button');
-      shareBtn.innerHTML = '📤 Compartilhar Sucesso';
-      shareBtn.style.cssText = `
-        position: fixed; top: 20px; right: 20px; z-index: 1000;
-        background: linear-gradient(45deg, #22c55e, #16a34a);
-        color: white; border: none; padding: 12px 16px;
-        border-radius: 12px; font-weight: 700; cursor: pointer;
-        box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
-        animation: pulse 2s infinite;
-      `;
-      
-      shareBtn.onclick = async () => {
-        try {
-          await navigator.share({
-            title: 'STREAM TV Premium - Ativado!',
-            text: 'Acabei de ativar minha assinatura STREAM TV Premium! 🔥🎬',
-            url: window.location.href
-          });
-          
-          if (typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'SuccessPage_Shared', {
-              share_method: 'native_share',
-              content_type: 'success_story'
-            });
-          }
-          
-          toast('📤 Compartilhado com sucesso!', 'success');
-        } catch (e) {
-          console.log('Share cancelado:', e);
-        }
-      };
-      
-      document.body.appendChild(shareBtn);
-      
-      // Add pulse animation
-      const pulseStyle = document.createElement('style');
-      pulseStyle.textContent = `
-        @keyframes pulse {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-          100% { transform: scale(1); }
-        }
-      `;
-      document.head.appendChild(pulseStyle);
-    }
-
-
-
-    function initNetworkMonitoring() {
-      function checkConnection() {
-        const status = navigator.onLine ? 'online' : 'offline';
-        
-        if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'NetworkStatus_Check', { 
-            status: status,
-            timestamp: Date.now()
-          });
-        }
-      }
-      
-      setInterval(checkConnection, 60000); // Check every minute
-      
-      window.addEventListener('online', () => {
-        toast('🔄 Conexão restabelecida!', 'success');
-        if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'Network_Reconnected');
-        }
-      });
-      
-      window.addEventListener('offline', () => {
-        toast('📡 Conexão perdida - Tentando reconectar...', 'error');
-        if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'Network_Disconnected');
-        }
-      });
-    }
-
-
-
-    function initPerformanceMonitoring() {
-      window.addEventListener('load', () => {
-        const loadTime = Math.round(performance.now());
-        
-        if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'PagePerformance_Metrics', {
-            load_time_ms: loadTime,
-            page_size_estimate: document.documentElement.outerHTML.length,
-            connection_type: navigator.connection ? navigator.connection.effectiveType : 'unknown'
-          });
-        }
-        
-        console.log(`🚀 STREAM TV carregado em ${loadTime}ms`);
-        
-        if (loadTime > 3000) {
-          setTimeout(() => {
-            toast('⚡ Dica: Adicione aos favoritos para carregamento mais rápido!', 'info');
-          }, 5000);
-        }
-      });
-    }
-
-
-
-    function initBehaviorTracking() {
-      let mouseMovements = 0;
-      let keyPresses = 0;
-      let scrollEvents = 0;
-      
-      document.addEventListener('mousemove', () => {
-        mouseMovements++;
-      });
-      
-      document.addEventListener('keypress', () => {
-        keyPresses++;
-      });
-      
-      window.addEventListener('scroll', () => {
-        scrollEvents++;
-      });
-      
-      setInterval(() => {
-        if (typeof fbq !== 'undefined' && (mouseMovements > 0 || keyPresses > 0 || scrollEvents > 0)) {
-          fbq('trackCustom', 'UserBehavior_Activity', {
-            mouse_movements: mouseMovements,
-            key_presses: keyPresses,
-            scroll_events: scrollEvents,
-            engagement_score: Math.min(100, (mouseMovements + keyPresses * 2 + scrollEvents * 3))
-          });
-          
-          mouseMovements = 0;
-          keyPresses = 0;
-          scrollEvents = 0;
-        }
-      }, 30000);
-    }
-
-
-
-    function addVisualEffects() {
-      const container = document.querySelector('.container');
-      
-      setInterval(() => {
-        const particle = document.createElement('div');
-        const colors = ['#FFD700', '#22c55e', '#3b82f6', '#ef4444', '#8b5cf6', '#f59e0b'];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        
-        particle.style.cssText = `
-          position: absolute; width: 6px; height: 6px;
-          background: ${randomColor}; border-radius: 50%; opacity: 0.8;
-          left: ${Math.random() * 100}%; bottom: -10px;
-          animation: floatUp 5s linear forwards; pointer-events: none;
-          box-shadow: 0 0 10px ${randomColor}50;
-        `;
-        
-        container.appendChild(particle);
-        
-        setTimeout(() => {
-          if (container.contains(particle)) {
-            particle.remove();
-          }
-        }, 5000);
-      }, 1500);
-      
-      const enhancedStyle = document.createElement('style');
-      enhancedStyle.textContent = `
-        @keyframes floatUp {
-          0% { 
-            transform: translateY(0) rotate(0deg) scale(1); 
-            opacity: 0.8; 
-          }
-          50% {
-            transform: translateY(-50vh) rotate(180deg) scale(1.2);
-            opacity: 1;
-          }
-          100% { 
-            transform: translateY(-100vh) rotate(360deg) scale(0.5); 
-            opacity: 0; 
-          }
-        }
-        
-        .container {
-          position: relative;
-          overflow: hidden;
-        }
-      `;
-      document.head.appendChild(enhancedStyle);
-      
-      setTimeout(() => toast('🔥 Bem-vindo ao STREAM TV Premium!', 'success'), 3000);
-      setTimeout(() => toast('📱 Fique atento ao WhatsApp para suas credenciais!', 'info'), 120000);
-      
-      initEasterEgg();
-    }
-
-
-
-    function initEasterEgg() {
-      const konamiCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
-      let userInput = [];
-      
-      document.addEventListener('keydown', (e) => {
-        userInput.push(e.keyCode);
-        
-        if (userInput.length > konamiCode.length) {
-          userInput.shift();
-        }
-        
-        if (userInput.length === konamiCode.length && 
-            userInput.every((code, index) => code === konamiCode[index])) {
-          
-          document.body.style.animation = 'rainbow 3s infinite';
-          toast('🎮 MODO STREAM ATIVADO! Você descobriu o segredo!', 'success');
-          
-          for (let i = 0; i < 20; i++) {
-            setTimeout(() => {
-              const firework = document.createElement('div');
-              firework.style.cssText = `
-                position: fixed; width: 10px; height: 10px;
-                background: #FFD700; border-radius: 50%;
-                left: ${Math.random() * 100}vw; top: ${Math.random() * 100}vh;
-                animation: explode 2s ease-out forwards; pointer-events: none;
-                z-index: 10000;
-              `;
-              document.body.appendChild(firework);
-              
-              setTimeout(() => firework.remove(), 2000);
-            }, i * 100);
-          }
-          
-          if (typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'EasterEgg_Activated', {
-              easter_egg_type: 'konami_code',
-              user_engagement: 'exceptional'
-            });
-          }
-          
-          setTimeout(() => {
-            document.body.style.animation = '';
-          }, 10000);
-        }
-      });
-      
-      const explosionStyle = document.createElement('style');
-      explosionStyle.textContent = `
-      @keyframes explode {
-          0% { transform: scale(1) rotate(0deg); opacity: 1; }
-          50% { transform: scale(3) rotate(180deg); opacity: 0.7; }
-          100% { transform: scale(0) rotate(360deg); opacity: 0; }
-        }
-        @keyframes rainbow {
-          0% { filter: hue-rotate(0deg); }
-          100% { filter: hue-rotate(360deg); }
-        }
-      `;
-      document.head.appendChild(explosionStyle);
-    }
-
-
-
-    function toast(message, type = 'success') {
-      const toastEl = document.createElement('div');
-      toastEl.className = 'furion-toast';
-      
-      const bgColors = {
-        success: 'linear-gradient(45deg, #22c55e, #16a34a)',
-        info: 'linear-gradient(45deg, #3b82f6, #2563eb)',
-        error: 'linear-gradient(45deg, #ef4444, #dc2626)',
-        warning: 'linear-gradient(45deg, #f59e0b, #d97706)'
-      };
-      
-      toastEl.style.cssText = `
-        position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-        background: ${bgColors[type] || bgColors.info};
-        color: white; padding: 16px 20px; border-radius: 12px;
-        font-weight: 700; box-shadow: 0 10px 28px rgba(0,0,0,0.35);
-        animation: slideInToast 0.3s ease both;
-        max-width: 320px; font-size: 14px; line-height: 1.4;
-        border: 1px solid rgba(255,255,255,0.1);
-      `;
-      
-      toastEl.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span>${message}</span>
-          <button onclick="this.parentElement.parentElement.remove()" style="
-            background: none; border: none; color: white; font-size: 18px;
-            cursor: pointer; padding: 0; margin-left: auto; opacity: 0.7;
-          ">×</button>
-        </div>
-      `;
-      
-      document.body.appendChild(toastEl);
-      
-      setTimeout(() => {
-        if (document.body.contains(toastEl)) {
-          toastEl.style.animation = 'slideOutToast 0.3s ease forwards';
-          setTimeout(() => toastEl.remove(), 300);
-        }
-      }, 5000);
-      
-      if (!document.head.querySelector('style[data-toast-animations]')) {
-        const toastStyle = document.createElement('style');
-        toastStyle.setAttribute('data-toast-animations', 'true');
-        toastStyle.textContent = `
-          @keyframes slideInToast {
-            from { opacity: 0; transform: translateX(100%); }
-            to { opacity: 1; transform: translateX(0); }
-          }
-          @keyframes slideOutToast {
-            from { opacity: 1; transform: translateX(0); }
-            to { opacity: 0; transform: translateX(100%); }
-          }
-        `;
-        document.head.appendChild(toastStyle);
-      }
-    }
-
-
-
-    function initConfetti() {
-      const colors = ['#FFD700', '#22c55e', '#3b82f6', '#ef4444', '#8b5cf6', '#f59e0b', '#06d6a0'];
-      const confettiElements = document.querySelectorAll('.confetti');
-      
-      confettiElements.forEach((confetti, index) => {
-        const randomColor = colors[index % colors.length];
-        const randomDelay = (index % 7) * 0.2;
-        const randomDuration = 3 + Math.random() * 2;
-        
-        confetti.style.cssText = `
-          position: fixed; width: 8px; height: 8px; top: -20px;
-          background: ${randomColor}; border-radius: 3px; opacity: 0.9;
-          left: ${(index * 11) % 100}%; animation-delay: ${randomDelay}s;
-          animation: confettiFall ${randomDuration}s linear infinite;
-          pointer-events: none; z-index: 1000;
-          box-shadow: 0 0 6px ${randomColor}80;
-        `;
-      });
-      
-      const confettiStyle = document.createElement('style');
-      confettiStyle.textContent = `
-        @keyframes confettiFall {
-          0% { 
-            transform: translateY(-100vh) rotate(0deg) scale(1);
-            opacity: 0.9;
-          }
-          10% {
-            opacity: 1;
-          }
-          90% {
-            opacity: 0.8;
-          }
-          100% { 
-            transform: translateY(120vh) rotate(720deg) scale(0.3);
-            opacity: 0;
-          }
-        }
-      `;
-      document.head.appendChild(confettiStyle);
-      
-      setTimeout(() => {
-        createConfettiBurst();
-      }, 1000);
-    }
-
-
-
-    function createConfettiBurst() {
-      const colors = ['#FFD700', '#22c55e', '#3b82f6', '#ef4444', '#8b5cf6'];
-      
-      for (let i = 0; i < 30; i++) {
-        setTimeout(() => {
-          const burst = document.createElement('div');
-          const color = colors[Math.floor(Math.random() * colors.length)];
-          
-          burst.style.cssText = `
-            position: fixed; width: 12px; height: 12px;
-            background: ${color}; border-radius: 50%;
-            left: 50%; top: 50%; z-index: 10000;
-            animation: burstOut 2s ease-out forwards;
-            pointer-events: none;
-          `;
-          
-          document.body.appendChild(burst);
-          setTimeout(() => burst.remove(), 2000);
-        }, i * 50);
-      }
-      
-      const burstStyle = document.createElement('style');
-      burstStyle.textContent = `
-        @keyframes burstOut {
-          0% {
-            transform: translate(-50%, -50%) scale(1) rotate(0deg);
-            opacity: 1;
-          }
-          100% {
-            transform: translate(
-              calc(-50% + ${Math.random() * 400 - 200}px), 
-              calc(-50% + ${Math.random() * 400 - 200}px)
-            ) scale(0) rotate(360deg);
-            opacity: 0;
-          }
-        }
-      `;
-      document.head.appendChild(burstStyle);
-    }
-
-
-
-    function initFinalPixelEvents() {
-      if (typeof fbq === 'undefined') return;
-      
-      fbq('trackCustom', 'PremiumSuccess_PageView', {
-        event_source: 'confirmation_page',
-        conversion_complete: true,
-        timestamp: new Date().toISOString(),
-        customer_tier: 'premium'
-      });
-      
-      setTimeout(() => {
-        fbq('trackCustom', 'PremiumSuccess_Engaged', {
-          engagement_duration: 30,
-          page_interaction: 'high_value'
-        });
-      }, 30000);
-      
-      setTimeout(() => {
-        fbq('trackCustom', 'PremiumSuccess_HighEngagement', {
-          engagement_duration: 60,
-          customer_quality: 'high_value',
-          conversion_confidence: 'very_high'
-        });
-      }, 60000);
-    }
-
-
-
-    // Advanced Error Handling
-    window.addEventListener('error', (e) => {
-      if (typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'JavaScript_Error', {
-          error_message: e.message,
-          error_source: e.filename,
-          error_line: e.lineno,
-          page_type: 'confirmation'
-        });
-      }
-      console.error('STREAM Error:', e);
-    });
-
-
-
-    // Unload event with enhanced data
-    window.addEventListener('beforeunload', () => {
-      const sessionData = {
-        session_duration: Date.now() - (localStorage.getItem('registration_time') || Date.now()),
-        page_views: 1,
-        engagement_level: 'confirmed_purchase',
-        exit_type: 'natural'
-      };
-      
-      if (typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'Session_End', sessionData);
-      }
-      
-      // Try to send final beacon
-      if (navigator.sendBeacon) {
-        const finalPayload = {
-          event_name: "SessionEnd",
-          event_id: `session_end_${Date.now()}`,
-          event_source_url: window.location.href,
-          user: {
-            name: localStorage.getItem("user_name") || "",
-            email: localStorage.getItem("user_email") || "",
-            phone: localStorage.getItem("user_phone") || "",
-            fbp: localStorage.getItem("_fbp") || "",
-            fbc: localStorage.getItem("_fbc") || ""
-          },
-          custom_data: sessionData
+      // Share button (se suportado)
+      if(navigator.share){
+        const btn=document.createElement('button');
+        btn.textContent='📤 Compartilhar Sucesso';
+        Object.assign(btn.style,{position:'fixed',top:'16px',right:'16px',background:'linear-gradient(45deg,#22c55e,#16a34a)',color:'#fff',border:'none',padding:'10px 14px',borderRadius:'999px',fontWeight:'800',cursor:'pointer',zIndex:'1000',boxShadow:'0 8px 24px rgba(0,0,0,.25)'});
+        btn.onclick=async()=>{
+          try{
+            await navigator.share({title:'StreamForce - Cadastro Ativado!',text:'Acabei de ativar minha assinatura StreamForce Premium! 🎉',url:location.href});
+            if(typeof fbq!=='undefined') fbq('trackCustom','SuccessPageShared');
+          }catch(e){ console.log('Share cancelado',e); }
         };
-        
-        CONFIG.capiEndpoints.forEach(endpoint => {
-          const blob = new Blob([JSON.stringify(finalPayload)], { type: 'application/json' });
-          navigator.sendBeacon(endpoint, blob);
-        });
+        document.body.appendChild(btn);
       }
-    });
+      // Conectividade
+      function checkConnection(){
+        if(navigator.onLine) toast('✅ Conexão estável detectada','success');
+        else toast('⚠️ Sem conexão. Verifique sua internet.','error');
+      }
+      setInterval(checkConnection, 30000);
+      window.addEventListener('online', ()=>toast('✅ Conexão restabelecida','success'));
+      window.addEventListener('offline',()=>toast('⚠️ Sem conexão','error'));
+      // Performance
+      window.addEventListener('load',()=>{
+        const ms = Math.round(performance.now());
+        if(typeof fbq!=='undefined') fbq('trackCustom','SuccessPageLoad_Time',{loadtimems:ms});
+        console.log(`📊 Página carregada em ${ms}ms`);
+      });
+      // Easter egg (Konami)
+      const seq=[38,38,40,40,37,39,37,39,66,65]; let typed=[];
+      document.addEventListener('keydown',e=>{
+        typed.push(e.keyCode); if(typed.length>seq.length) typed.shift();
+        if(typed.length===seq.length && typed.every((v,i)=>v===seq[i])){
+          document.body.style.animation='rainbow 2s infinite';
+          toast('🎮 Modo Especial Ativado!', 'success');
+          if(typeof fbq!=='undefined') fbq('trackCustom','EasterEggActivated');
+          setTimeout(()=>{ document.body.style.animation=''; }, 8000);
+        }
+      });
+      const style=document.createElement('style');
+      style.textContent='@keyframes rainbow{0%{filter:hue-rotate(0)}100%{filter:hue-rotate(360deg)}}';
+      document.head.appendChild(style);
+    }
 
+    function sendWhatsAppNotification(){
+      const message = `🎉 StreamForce - CADASTRO FINALIZADO COM SUCESSO
+✅ Status: Cadastro ativado e confirmado
+⏰ Data/Hora: ${new Date().toLocaleString('pt-BR')}
+📱 Próximo passo: Aguardar dados de acesso
+
+🎬 Informações importantes:
+• Seus dados de acesso serão enviados em até 5 minutos
+• Você receberá tutorial de instalação completo
+• Suporte técnico 24/7 disponível
+• Qualidade 4K garantida
+
+🚀 Bem-vindo à StreamForce Premium!`;
+      const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+      console.log('WhatsApp URL (automática):', url);
+      // Opcional: abrir automaticamente
+      // window.open(url,'_blank');
+    }
+
+    function addVisualEffects(){
+      // partículas flutuantes
+      const cont=document.querySelector('.container');
+      setInterval(()=>{
+        const p=document.createElement('div');
+        p.style.cssText=`position:absolute;width:4px;height:4px;background:${['#FFD700','#22c55e','#3b82f6'][Math.floor(Math.random()*3)]};border-radius:50%;opacity:.7;left:${Math.random()*100}%;bottom:-10px;animation:floatUp 4s linear forwards;pointer-events:none`;
+        cont.appendChild(p);
+        setTimeout(()=>{ p.remove(); }, 4000);
+      }, 2000);
+      const st=document.createElement('style');
+      st.textContent='@keyframes floatUp{0%{transform:translateY(0) rotate(0);opacity:.7}100%{transform:translateY(-100vh) rotate(360deg);opacity:0}}';
+      document.head.appendChild(st);
+      setTimeout(()=> toast('🎉 Bem-vindo à StreamForce Premium!'), 2500);
+      setTimeout(()=> toast('📱 Fique atento ao WhatsApp!', 'info'), 150000);
+      document.addEventListener('visibilitychange',()=>{
+        if(typeof fbq!=='undefined') fbq('trackCustom', document.hidden ? 'SuccessPageHidden' : 'SuccessPageVisible');
+      });
+    }
+
+    function toast(message, type='success'){
+      const t=document.createElement('div');
+      t.className='toast';
+      t.style.background = type==='success' ? '#0e4223' : (type==='info' ? '#111826' : '#7a0912');
+      t.textContent=message;
+      document.body.appendChild(t);
+      setTimeout(()=>{ t.style.animation='out .25s ease forwards'; setTimeout(()=>t.remove(), 250); }, 3800);
+    }
+
+    function initConfetti(){
+      const colors=['#FFD700','#22c55e','#3b82f6','#ff4500','#9C27B0'];
+      document.querySelectorAll('.confetti').forEach((c,i)=>{
+        c.style.left = `${(i*9)%100}%`;
+        c.style.animationDelay = `${(i%5)*.25}s`;
+        c.style.background = colors[i%colors.length];
+      });
+    }
+
+function sendCAPIEvent(payload) {
+    const url = "https://capi-api.onrender.com/event";
+
+    try {
+      if (navigator.sendBeacon) {
+        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+        const ok = navigator.sendBeacon(url, blob);
+        console.log('📡 CAPI via sendBeacon =>', ok);
+        return Promise.resolve({ beacon: ok });
+      }
+    } catch(e){
+      console.warn('sendBeacon falhou', e);
+    }
+
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true
+    })
+    .then(res => res.ok ? res.json().catch(()=>({ ok: true })) : { ok: false, status: res.status })
+    .catch(err => {
+      console.error('❌ CAPI fetch error', err);
+      return { ok: false, error: String(err) };
+    });
+  }
+
+function firePurchaseEvent(){
+  // evita disparo múltiplo (por reload)
+  if(localStorage.getItem('purchase_fired')) {
+    console.log('Purchase já disparado (purchase_fired). Pulando.');
+    return;
+  }
+
+  if (typeof fbq === 'undefined') {
+    console.warn('fbq não disponível — Purchase não será disparado no client.');
+    return;
+  }
+
+  const eventId = 'purchase_' + Date.now() + '_' + Math.floor(Math.random()*100000);
+
+  // Pixel (cliente)
+  fbq('track', 'Purchase', {
+    content_ids: ['StreamForce-premium'],
+    content_name: 'StreamForce Premium',
+    content_type: 'subscription',
+    value: 25.00,         // opcional, mas útil para otimização
+    currency: 'BRL',
+    order_id: localStorage.getItem("transacao") || "N/A"
+  }, { eventID: eventId });
+
+  // salva flag para evitar reenvio se a pessoa atualizar a página
+  try { localStorage.setItem('purchase_fired', eventId); } catch(e){}
+
+const payload = {
+  event_name: "Purchase",
+  event_id: eventId,
+  event_source_url: window.location.href,
+  user: {
+    name: localStorage.getItem("user_name") || "",
+    email: localStorage.getItem("user_email") || "",
+    phone: localStorage.getItem("user_phone") || "",
+    fbp: localStorage.getItem("_fbp") || "",
+    fbc: localStorage.getItem("_fbc") || ""
+  },
+  custom_data: {
+    content_ids: ["streamforce-premium"],
+    content_name: "streamforcePremium",
+    content_type: "subscription",
+    value: 25.00,
+    currency: "BRL",
+    order_id: localStorage.getItem("transacao") || "N/A"
+  }
+};
+
+sendCAPIEvent(payload).then(resp => console.log('📡 CAPI resp', resp));
+}
 
 
   </script>
