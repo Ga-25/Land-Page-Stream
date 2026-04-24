@@ -370,14 +370,6 @@ async function handleFormSubmit(e){
       content_ids: [data.transacao || 'no-tx']
     }, { eventID: regEventId });
 
-    fbq('trackCustom','Registration_Complete',{
-      customer_name: data.nome,
-      customer_email: data.email,
-      customer_phone: data.whatsapp,
-      registrationsource: 'landingpage',
-      timestamp: new Date().toISOString()
-    });
-
     try { localStorage.setItem('last_event_id', regEventId); } catch(e){}
   }
 
