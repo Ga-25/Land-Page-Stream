@@ -15,15 +15,15 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 
-fbq('init', '1265874438298153'); // Pixel principal
-fbq('init', '1243575623768850'); // Pixel backup
+fbq('init', '2435493903541379'); // Pixel principal
+fbq('init', '1265874438298153'); // Pixel backup
 fbq('track', 'PageView');
 </script>
 <noscript>
   <img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=1265874438298153&ev=PageView&noscript=1"/>
+    src="https://www.facebook.com/tr?id=2435493903541379&ev=PageView&noscript=1"/>
   <img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=1243575623768850&ev=PageView&noscript=1"/>
+    src="https://www.facebook.com/tr?id=1265874438298153&ev=PageView&noscript=1"/>
 </noscript>
 <!-- End Meta Pixel Code -->
 
@@ -389,7 +389,7 @@ function firePurchaseEvent(){
   try { localStorage.setItem('purchase_fired', eventId); } catch(e){}
 
   // CAPI -> envia para seu server (server.js irá hashear user_data)
-  fetch("https://capi-api.onrender.com/event", {
+  fetch("https://capi-api-gabriel.onrender.com/event", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
