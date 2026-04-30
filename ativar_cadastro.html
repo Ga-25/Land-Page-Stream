@@ -65,14 +65,44 @@
 
 
   // TRIPLE PIXEL POWER
-  fbq('init', '2435493903541379'); // StreamForce Principal
+  // ✅ FURION POWER - ADVANCED MATCHING SUPREMO
+fbq('init', '2435493903541379', {
+  // Enhanced matching automático
+  automatic_matching: true,
+  autoConfig: true
+}, {
+  agent: 'plat'
+});
+
+
+
+// ✅ FURION POWER - ENHANCED INIT COM DADOS DINÂMICOS
+function initEnhancedMatching() {
+  // Captura dados avançados automaticamente
+  const deviceInfo = {
+    screen_resolution: `${screen.width}x${screen.height}`,
+    color_depth: screen.colorDepth,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    language: navigator.language,
+    platform: navigator.platform,
+    device_memory: navigator.deviceMemory || 'unknown',
+    connection_type: navigator.connection ? navigator.connection.effectiveType : 'unknown'
+  };
+  
+  // Salvar para uso posterior
+  localStorage.setItem('device_fingerprint', JSON.stringify(deviceInfo));
+  console.log('🔥 Device fingerprint capturado:', deviceInfo);
+}
+
+
+
+// Executar imediatamente
+initEnhancedMatching(); // StreamForce Principal
  
   
   
   // Enhanced Conversions Data
-  fbq('track', 'PageView', {}, {
-    eventID: `pv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-  });
+fbq('track', 'PageView');
   </script>
 
 
@@ -385,7 +415,14 @@
 
 
 
-      // ✅ FURION POWER - BROWSER EVENT ÚNICO (CompleteRegistration)
+            // ✅ FURION POWER - BROWSER EVENT ÚNICO (CompleteRegistration)
+            // ✅ FURION POWER - ENHANCED CONVERSIONS DEVASTADORAS
+      const deviceFingerprint = JSON.parse(localStorage.getItem('device_fingerprint') || '{}');
+      const sessionStart = localStorage.getItem('session_start') || Date.now();
+      const engagementTime = Date.now() - parseInt(sessionStart);
+
+
+
       fbq('track', 'CompleteRegistration', {
           content_name: 'FURION TV Premium Registration',
           content_category: 'subscription',
@@ -393,35 +430,48 @@
           value: 25.00,
           currency: 'BRL',
           status: 'completed',
-          order_id: formData.transacao
+          order_id: formData.transacao,
+          // ✅ DADOS ENRIQUECIDOS PARA MELHOR TARGETING:
+          predicted_ltv: 150.00,
+          customer_segment: 'high_value',
+          acquisition_channel: formData.utm_source,
+          conversion_quality: 'premium',
+          engagement_time: Math.round(engagementTime / 1000),
+          form_completion_speed: Math.round((Date.now() - window.formStartTime) / 1000),
+          device_type: window.innerWidth <= 768 ? 'mobile' : 'desktop',
+          traffic_quality: calculateTrafficQuality(formData),
+          user_intent_score: calculateIntentScore(),
+          conversion_probability: 0.95
       }, {
           eventID: sharedEventId // ✅ ID SINCRONIZADO
       });
 
 
-
-      // ✅ CUSTOM EVENTS COM IDs ÚNICOS (não conflitam)
-      fbq('trackCustom', 'HighValueRegistration', {
-          registration_type: 'premium_subscription',
-          lead_quality: 'high',
-          form_completion_time: Date.now() - (window.formStartTime || Date.now()),
-          utm_source: formData.utm_source,
-          utm_campaign: formData.utm_campaign,
-          conversion_value: 25.00,
-          customer_tier: 'premium'
-      }, {
-          eventID: `custom_high_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-      });
+            // ✅ FURION POWER - MICRO-SEGMENTAÇÃO PARA CUSTOM AUDIENCES
 
 
 
       // ✅ FURION POWER - CAPI COM DADOS PUROS (SEM HASH NO FRONT)
       await Promise.allSettled(CONFIG.capiEndpoints.map(async (endpoint) => {
           // Telefone normalizado para CAPI
+          // ✅ TELEFONE NORMALIZADO MELHORADO PARA CAPI
           let phoneForCAPI = formData.whatsapp.replace(/\D/g, '');
+
+          console.log('📱 Front - Telefone original:', formData.whatsapp);
+          console.log('📱 Front - Telefone limpo:', phoneForCAPI);
+
+          // ✅ NORMALIZAÇÃO CONSISTENTE COM SERVER
+          if (phoneForCAPI.length === 10) {
+              // Telefone fixo -> adiciona 9
+              phoneForCAPI = phoneForCAPI.substring(0, 2) + '9' + phoneForCAPI.substring(2);
+          }
+
           if (phoneForCAPI.length === 11 && !phoneForCAPI.startsWith('55')) {
               phoneForCAPI = '55' + phoneForCAPI;
           }
+
+    
+          console.log('📱 Front - Telefone FINAL para CAPI:', phoneForCAPI);
 
 
 
@@ -467,6 +517,94 @@
     // FURION POWER - Helper Functions
     function generateTransactionId() {
       return `FTV_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    }
+
+
+        // ✅ FURION POWER - FUNÇÕES DE INTELIGÊNCIA ARTIFICIAL
+
+
+    function calculateLeadScore(formData) {
+        let score = 0;
+        
+        // Email quality
+        const emailDomain = formData.email.split('@')[1];
+        const premiumDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'icloud.com'];
+        if (premiumDomains.includes(emailDomain)) score += 25;
+        
+        // Phone quality
+        if (formData.whatsapp.length >= 14) score += 25;
+        
+        // Name quality
+        if (formData.nome.split(' ').length >= 2) score += 20;
+        
+        // Engagement quality
+        const engagementTime = Date.now() - (window.formStartTime || Date.now());
+        if (engagementTime > 30000 && engagementTime < 300000) score += 30; // 30s - 5min sweet spot
+        
+        return Math.min(score, 100);
+    }
+
+
+    function calculateIntentScore() {
+        let score = 0;
+        
+        // Time on page
+        const timeOnPage = Date.now() - (window.pageLoadTime || Date.now());
+        if (timeOnPage > 60000) score += 30; // Mais de 1 minuto
+        
+        // Scroll behavior
+        if (window.maxScrollReached >= 50) score += 25;
+        
+        // Form interactions
+        const formInteractions = window.formInteractions || 0;
+        score += Math.min(formInteractions * 5, 25);
+        
+        // UTM source quality
+        const utmSource = localStorage.getItem('utm_source');
+        if (utmSource && utmSource !== 'direct') score += 20;
+        
+        return Math.min(score, 100);
+    }
+
+
+    function calculateTrafficQuality(formData) {
+        const source = formData.utm_source;
+        const qualityMap = {
+            'google': 'high',
+            'facebook': 'high', 
+            'instagram': 'high',
+            'youtube': 'medium',
+            'tiktok': 'medium',
+            'organic': 'very_high',
+            'direct': 'high'
+        };
+        return qualityMap[source] || 'medium';
+    }
+
+
+    function getEngagementLevel() {
+        const timeOnPage = Date.now() - (window.pageLoadTime || Date.now());
+        const scrollDepth = window.maxScrollReached || 0;
+        const interactions = window.formInteractions || 0;
+        
+        if (timeOnPage > 120000 && scrollDepth > 75 && interactions > 5) return 'very_high';
+        if (timeOnPage > 60000 && scrollDepth > 50 && interactions > 3) return 'high';
+        if (timeOnPage > 30000 && scrollDepth > 25) return 'medium';
+        return 'low';
+    }
+
+
+    function getTouchInteractions() {
+        return window.touchInteractions || 0;
+    }
+
+
+    function getAttributionPath() {
+        const path = [];
+        if (document.referrer) path.push('referrer');
+        if (localStorage.getItem('utm_source')) path.push('utm');
+        if (localStorage.getItem('_fbc')) path.push('facebook');
+        return path.join(' -> ') || 'direct';
     }
 
 
@@ -521,35 +659,58 @@
 
     // FURION POWER - Enhanced Tracking Initialization
     document.addEventListener('DOMContentLoaded', () => {
+
+        // ✅ FURION POWER - TRACKING AVANÇADO DE COMPORTAMENTO
+      window.pageLoadTime = Date.now();
       window.formStartTime = Date.now();
+      window.formInteractions = 0;
+      window.maxScrollReached = 0;
+      window.touchInteractions = 0;
       
-      // Track form interactions
+      // Session tracking
+      if (!localStorage.getItem('session_start')) {
+          localStorage.setItem('session_start', Date.now());
+      }
+      
+      // Scroll tracking avançado
+      let scrollTimeout;
+      window.addEventListener('scroll', () => {
+          const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+          window.maxScrollReached = Math.max(window.maxScrollReached, scrollPercent);
+          
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
+          }, 500);
+      });
+      
+      // Touch tracking para mobile
+      document.addEventListener('touchstart', () => {
+          window.touchInteractions++;
+      });
+      
+      // ✅ FURION POWER - FORM TRACKING CONSOLIDADO
       document.querySelectorAll('.form-input').forEach(input => {
-        input.addEventListener('focus', () => {
-          if (typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'FormFieldFocus', {
-              field_name: input.name,
-              field_type: input.type
-            });
-          }
-        });
+          input.addEventListener('focus', () => {
+              window.formInteractions++; // Counter
+              
+              // Facebook tracking
+              if (typeof fbq !== 'undefined') {
+              }
+          });
 
+          input.addEventListener('input', debounce(() => {
+              window.formInteractions++; // Counter
+              
+              const nome = document.getElementById('nome').value;
+              const email = document.getElementById('email').value;
+              const whatsapp = document.getElementById('whatsapp').value;    
 
+      
 
-        input.addEventListener('input', debounce(() => {
-            //maybeInitiateCheckout(); // 👈 ADICIONA AQUI
+              if(nome.length > 5 && email.includes('@') && whatsapp.length > 10) {
 
-        const nome = document.getElementById('nome').value;
-        const email = document.getElementById('email').value;
-        const whatsapp = document.getElementById('whatsapp').value;    
-
-        if(nome.length > 5 && email.includes('@') && whatsapp.length > 10) {
-            fbq('trackCustom', 'FormFieldProgress', {
-              field_name: input.name,
-              completion_percentage: Math.round((input.value.length / 50) * 100)
-            });
-          }
-        }, 1000));  
+              }
+          }, 1000));  
       });
 
       
@@ -624,10 +785,6 @@
 
       // Track A/B test view
       if (typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'ABTestView', {
-          variant: variant,
-          test_name: 'furion_registration_v3'
-        });
       }
 
 
@@ -711,7 +868,6 @@
           if (!formStarted) {
             formStarted = true;
             if (typeof fbq !== 'undefined') {
-              fbq('trackCustom', 'FormEngagement_Started');
             }
           }
           resetIdle();
@@ -725,9 +881,8 @@
           
           // Progressive engagement tracking
           if (fieldsFilled === 1 && typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'FormEngagement_FirstField');
+    
           } else if (fieldsFilled === 2 && typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'FormEngagement_SecondField');
           }
         });
       });
@@ -802,9 +957,6 @@
       
       // Track abandonment alert
       if (typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'AbandonmentAlert_Shown', {
-          alert_type: title.includes('ESPERE') ? 'exit_intent' : 'idle_timeout'
-        });
       }
       
       document.getElementById('furion-close').onclick = () => {
@@ -817,7 +969,6 @@
         document.getElementById('submitBtn').scrollIntoView({ behavior: 'smooth', block: 'center' });
         
         if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'AbandonmentRecovery_Click');
         }
       };
       
@@ -875,9 +1026,6 @@
           const domain = email.split('@')[1];
           const highQualityDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
           
-          if (highQualityDomains.includes(domain) && typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'HighQualityEmail_Entered', { email_domain: domain });
-          }
         }
       });
     }
@@ -921,11 +1069,11 @@
       
       // Track progress milestones
       if (percentage === 33 && typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'FormProgress_33');
+
       } else if (percentage === 66 && typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'FormProgress_66');
+
       } else if (percentage === 100 && typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'FormProgress_100');
+
       }
     }
 
@@ -956,9 +1104,15 @@
         valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
     }
 
-    // 📱 WHATSAPP (formato (11) 99999-9999)
+    // 📱 WHATSAPP (formato mais flexível)
     else if (input.name === 'whatsapp') {
-        valid = /^\(\d{2}\)\s?\d{4,5}-\d{4}$/.test(value);
+        // Remove formatação para validar apenas números
+        const numbersOnly = value.replace(/\D/g, '');
+        // Aceita 10 ou 11 dígitos (com ou sem o 9 extra)
+        valid = numbersOnly.length >= 10 && numbersOnly.length <= 11;
+        
+        // Log para debug
+        console.log('📱 Validação telefone:', value, '→', numbersOnly, '→', valid);
     }
 
     // RESET CLASSES
@@ -1017,37 +1171,35 @@
 
     if (scroll > 50 && !window.scroll50) {
         window.scroll50 = true;
-        fbq('trackCustom', 'Scroll_50');
     }
     });
 
     setTimeout(() => {
-    fbq('trackCustom', 'TimeOnPage_30s');
     }, 30000);
 
 
-     function showPopup(title, text){
-      if(document.querySelector('.pop')) return;
-      const el = document.createElement('div');
-      el.className='pop';
-      el.innerHTML = `
+    function showPopup(title, text){
+    if(document.querySelector('.pop')) return;
+    const el = document.createElement('div');
+    el.className='pop';
+    el.innerHTML = `
         <div class="pop-card">
-          <h3>${title}</h3>
-          <p>${text}</p>
-          <div class="actions">
+        <h3>${title}</h3>
+        <p>${text}</p>
+        <div class="actions">
             <button class="final" id="finishNow">✅ Finalizar cadastro</button>
             <button class="close" id="closePop">Fechar</button>
-          </div>
+        </div>
         </div>`;
-      document.body.appendChild(el);
-      if (typeof fbq!=='undefined') fbq('trackCustom','FormAbandonmentAlert');
-      document.getElementById('closePop').onclick = ()=> el.remove();
-      document.getElementById('finishNow').onclick = ()=>{
+    document.body.appendChild(el);
+    // ✅ LINHA REMOVIDA
+    document.getElementById('closePop').onclick = ()=> el.remove();
+    document.getElementById('finishNow').onclick = ()=>{
         el.remove();
         document.getElementById('submitBtn').scrollIntoView({behavior:'smooth', block:'center'});
-      };
-      // Auto remove em 10s
-      setTimeout(()=>{ el.remove(); }, 10000);
+    };
+    // Auto remove em 10s
+    setTimeout(()=>{ el.remove(); }, 10000);
     }
 
   </script>

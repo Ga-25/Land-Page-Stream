@@ -40,7 +40,15 @@
 
 
   // ✅ MESMO PIXEL ID DO ATIVAR_CADASTRO
-  fbq('init', '2435493903541379'); // StreamForce Principal
+  // ✅ FURION POWER - ADVANCED MATCHING SINCRONIZADO
+fbq('init', '2435493903541379', {
+    // Enhanced matching automático
+    automatic_matching: true,
+    autoConfig: true
+}, {
+    agent: 'plat'
+});
+ // StreamForce Principal
 
 function getCookie(name) {
 const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
@@ -55,9 +63,7 @@ return match ? decodeURIComponent(match[2]) : null;
 })();
   
   // Enhanced Conversions Data
-  fbq('track', 'PageView', {}, {
-    eventID: `pv_confirm_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-  });
+  fbq('track', 'PageView');
   </script>
 
 
@@ -249,6 +255,32 @@ return match ? decodeURIComponent(match[2]) : null;
         return eventId;
     }
 
+        // ✅ FURION POWER - DEVICE FINGERPRINTING PARA CONFIRMAÇÃO
+    function initDeviceFingerprintConfirmation() {
+        // Recuperar fingerprint do registro ou criar novo
+        let deviceInfo = JSON.parse(localStorage.getItem('device_fingerprint') || '{}');
+        
+        if (!deviceInfo.screen_resolution) {
+            deviceInfo = {
+                screen_resolution: `${screen.width}x${screen.height}`,
+                color_depth: screen.colorDepth,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                language: navigator.language,
+                platform: navigator.platform,
+                device_memory: navigator.deviceMemory || 'unknown',
+                connection_type: navigator.connection ? navigator.connection.effectiveType : 'unknown'
+            };
+            localStorage.setItem('device_fingerprint', JSON.stringify(deviceInfo));
+        }
+        
+        console.log('🔥 Device fingerprint confirmação:', deviceInfo);
+        return deviceInfo;
+    }
+
+
+    // Executar na confirmação
+    initDeviceFingerprintConfirmation();
+
 
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -290,7 +322,14 @@ return match ? decodeURIComponent(match[2]) : null;
 
     
 
-        // ✅ BROWSER PURCHASE EVENT
+        // ✅ FURION POWER - PURCHASE COM ENHANCED CONVERSIONS DEVASTADORAS
+        const deviceFingerprint = JSON.parse(localStorage.getItem('device_fingerprint') || '{}');
+        const sessionDuration = Date.now() - parseInt(localStorage.getItem('session_start') || Date.now());
+        const registrationTime = parseInt(localStorage.getItem('registration_time') || Date.now());
+        const conversionJourney = Date.now() - registrationTime;
+
+     
+
         fbq('track', 'Purchase', {
             content_ids: ['furion-tv-premium'],
             content_name: 'FURION TV Premium Subscription',
@@ -299,8 +338,21 @@ return match ? decodeURIComponent(match[2]) : null;
             value: 25.00,
             currency: 'BRL',
             order_id: transactionId,
+            num_items: 1,
+            // ✅ ENHANCED CONVERSIONS PREMIUM:
             predicted_ltv: 150.00,
-            num_items: 1
+            customer_segment: 'premium_confirmed',
+            acquisition_channel: localStorage.getItem('utm_source') || 'direct',
+            conversion_funnel: 'registration_to_purchase',
+            customer_quality: 'high_value',
+            session_duration: Math.round(sessionDuration / 1000),
+            conversion_journey_time: Math.round(conversionJourney / 1000),
+            device_fingerprint_id: generateDeviceId(),
+            purchase_confidence: 1.0,
+            customer_tier: 'premium',
+            subscription_type: 'monthly_premium',
+            payment_readiness: 'immediate',
+            retention_probability: 0.85
         }, {
             eventID: purchaseEventId // ✅ ID SINCRONIZADO
         });
@@ -308,15 +360,9 @@ return match ? decodeURIComponent(match[2]) : null;
     
 
         // ✅ CUSTOM EVENTS COM IDs ÚNICOS
-        fbq('trackCustom', 'PremiumPurchaseComplete', {
-            purchase_type: 'premium_subscription',
-            customer_segment: 'high_value',
-            conversion_path: 'direct_registration',
-            subscription_tier: 'premium',
-            order_id: transactionId
-        }, {
-            eventID: `custom_purchase_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-        });
+        // ✅ FURION POWER - CUSTOM EVENTS DE VALOR PREMIUM
+
+     
 
     
 
@@ -331,9 +377,25 @@ return match ? decodeURIComponent(match[2]) : null;
 
     
 
+                // ✅ TELEFONE CONSISTENTE COM OUTRAS PÁGINAS
                 let phoneForCAPI = userData.phone ? userData.phone.replace(/\D/g, '') : '';
-                if (phoneForCAPI.length === 11 && !phoneForCAPI.startsWith('55')) {
-                    phoneForCAPI = '55' + phoneForCAPI;
+
+                
+                console.log('📱 Confirmação - Telefone recuperado:', userData.phone);
+                console.log('📱 Confirmação - Telefone limpo:', phoneForCAPI);
+
+              
+                if (phoneForCAPI) {
+                    // ✅ MESMA LÓGICA DO FRONT-END
+                    if (phoneForCAPI.length === 10) {
+                        phoneForCAPI = phoneForCAPI.substring(0, 2) + '9' + phoneForCAPI.substring(2);
+                    }
+                    
+                    if (phoneForCAPI.length === 11 && !phoneForCAPI.startsWith('55')) {
+                        phoneForCAPI = '55' + phoneForCAPI;
+                    }
+                    
+                    console.log('📱 Confirmação - Telefone FINAL:', phoneForCAPI);
                 }
 
     
@@ -389,7 +451,40 @@ return match ? decodeURIComponent(match[2]) : null;
 
 
     // ✅ FUNÇÃO HASH IDÊNTICA AO ATIVAR_CADASTRO
+    // ✅ FURION POWER - FUNÇÕES DE CÁLCULO PREMIUM
 
+    
+
+    function generateDeviceId() {
+        const deviceFingerprint = JSON.parse(localStorage.getItem('device_fingerprint') || '{}');
+        const components = [
+            deviceFingerprint.screen_resolution,
+            deviceFingerprint.timezone,
+            deviceFingerprint.language,
+            navigator.userAgent.substring(0, 50)
+        ].join('_');
+        
+        // Simple hash for device ID
+        let hash = 0;
+        for (let i = 0; i < components.length; i++) {
+            const char = components.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        return Math.abs(hash).toString(36);
+    }
+
+    
+
+    function calculateConversionSpeed() {
+        const registrationTime = parseInt(localStorage.getItem('registration_time') || Date.now());
+        const conversionTime = Date.now() - registrationTime;
+        
+        if (conversionTime < 60000) return 'instant'; // < 1 min
+        if (conversionTime < 300000) return 'fast'; // < 5 min
+        if (conversionTime < 1800000) return 'normal'; // < 30 min
+        return 'slow';
+    }
 
 
 
@@ -490,26 +585,17 @@ return match ? decodeURIComponent(match[2]) : null;
         engagementTime += 10;
         
         if (engagementTime === 30 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'SuccessPage_30sec', {
-            engagement_quality: 'high',
-            page_type: 'conversion_confirmation'
-          });
+         
         }
         
         if (engagementTime === 60 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'SuccessPage_1min', {
-            engagement_quality: 'very_high',
-            conversion_confidence: 'confirmed'
-          });
+         
         }
 
 
 
         if (engagementTime === 120 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'SuccessPage_2min', {
-            engagement_quality: 'exceptional',
-            customer_intent: 'highly_engaged'
-          });
+         
         }
       }, 10000);
 
@@ -522,10 +608,6 @@ return match ? decodeURIComponent(match[2]) : null;
           maxScroll = scrollPercent;
           
           if (maxScroll >= 50 && typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'SuccessPage_DeepScroll', {
-              scroll_depth: maxScroll,
-              engagement_type: 'content_exploration'
-            });
           }
         }
       });
@@ -536,12 +618,6 @@ return match ? decodeURIComponent(match[2]) : null;
       document.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', (e) => {
           if (typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'SuccessPage_LinkClick', {
-              link_url: link.href,
-              link_text: link.textContent.trim(),
-              click_position: link.getBoundingClientRect().top,
-              engagement_time: engagementTime
-            });
           }
         });
       });
@@ -553,11 +629,7 @@ return match ? decodeURIComponent(match[2]) : null;
         clearInterval(trackingInterval);
         
         if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'SuccessPage_Exit', {
-            time_on_page: engagementTime,
-            max_scroll_depth: maxScroll,
-            session_quality: engagementTime > 60 ? 'high' : 'standard'
-          });
+
         }
       });
 
@@ -566,10 +638,7 @@ return match ? decodeURIComponent(match[2]) : null;
       // Visibility change tracking
       document.addEventListener('visibilitychange', () => {
         if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', document.hidden ? 'SuccessPage_Hidden' : 'SuccessPage_Visible', {
-            engagement_time: engagementTime,
-            visibility_event: document.hidden ? 'tab_hidden' : 'tab_visible'
-          });
+
         }
       });
     }
@@ -594,15 +663,15 @@ return match ? decodeURIComponent(match[2]) : null;
         
         // Urgency milestones
         if (totalSeconds === 120 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'AccessTimer_2min', { urgency_level: 'medium' });
+         
         }
         
         if (totalSeconds === 60 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'AccessTimer_1min', { urgency_level: 'high' });
+         
         }
         
         if (totalSeconds === 30 && typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'AccessTimer_30sec', { urgency_level: 'critical' });
+         
         }
         
         if (totalSeconds <= 0) {
@@ -635,10 +704,7 @@ return match ? decodeURIComponent(match[2]) : null;
       }, 500);
       
       if (typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'AccessCredentials_Delivered', {
-          delivery_method: 'whatsapp',
-          delivery_status: 'completed'
-        });
+
       }
       
       toast('🎉 Credenciais enviadas! Verifique o WhatsApp!', 'success');
@@ -685,10 +751,7 @@ return match ? decodeURIComponent(match[2]) : null;
           const swipeDistance = touchStartY - touchEndY;
           
           if (Math.abs(swipeDistance) > 50 && typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'Mobile_SwipeGesture', {
-              swipe_direction: swipeDistance > 0 ? 'up' : 'down',
-              swipe_distance: Math.abs(swipeDistance)
-            });
+          
           }
         });
       }
@@ -730,10 +793,7 @@ return match ? decodeURIComponent(match[2]) : null;
           });
           
           if (typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'SuccessPage_Shared', {
-              share_method: 'native_share',
-              content_type: 'success_story'
-            });
+          
           }
           
           toast('📤 Compartilhado com sucesso!', 'success');
@@ -763,10 +823,7 @@ return match ? decodeURIComponent(match[2]) : null;
         const status = navigator.onLine ? 'online' : 'offline';
         
         if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'NetworkStatus_Check', { 
-            status: status,
-            timestamp: Date.now()
-          });
+        
         }
       }
       
@@ -775,14 +832,14 @@ return match ? decodeURIComponent(match[2]) : null;
       window.addEventListener('online', () => {
         toast('🔄 Conexão restabelecida!', 'success');
         if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'Network_Reconnected');
+        
         }
       });
       
       window.addEventListener('offline', () => {
         toast('📡 Conexão perdida - Tentando reconectar...', 'error');
         if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'Network_Disconnected');
+        
         }
       });
     }
@@ -794,11 +851,7 @@ return match ? decodeURIComponent(match[2]) : null;
         const loadTime = Math.round(performance.now());
         
         if (typeof fbq !== 'undefined') {
-          fbq('trackCustom', 'PagePerformance_Metrics', {
-            load_time_ms: loadTime,
-            page_size_estimate: document.documentElement.outerHTML.length,
-            connection_type: navigator.connection ? navigator.connection.effectiveType : 'unknown'
-          });
+         
         }
         
         console.log(`🚀 STREAM TV carregado em ${loadTime}ms`);
@@ -832,12 +885,7 @@ return match ? decodeURIComponent(match[2]) : null;
       
       setInterval(() => {
         if (typeof fbq !== 'undefined' && (mouseMovements > 0 || keyPresses > 0 || scrollEvents > 0)) {
-          fbq('trackCustom', 'UserBehavior_Activity', {
-            mouse_movements: mouseMovements,
-            key_presses: keyPresses,
-            scroll_events: scrollEvents,
-            engagement_score: Math.min(100, (mouseMovements + keyPresses * 2 + scrollEvents * 3))
-          });
+
           
           mouseMovements = 0;
           keyPresses = 0;
@@ -939,10 +987,7 @@ return match ? decodeURIComponent(match[2]) : null;
           }
           
           if (typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'EasterEgg_Activated', {
-              easter_egg_type: 'konami_code',
-              user_engagement: 'exceptional'
-            });
+           
           }
           
           setTimeout(() => {
@@ -1119,26 +1164,14 @@ return match ? decodeURIComponent(match[2]) : null;
     function initFinalPixelEvents() {
       if (typeof fbq === 'undefined') return;
       
-      fbq('trackCustom', 'PremiumSuccess_PageView', {
-        event_source: 'confirmation_page',
-        conversion_complete: true,
-        timestamp: new Date().toISOString(),
-        customer_tier: 'premium'
-      });
+    
       
       setTimeout(() => {
-        fbq('trackCustom', 'PremiumSuccess_Engaged', {
-          engagement_duration: 30,
-          page_interaction: 'high_value'
-        });
+
       }, 30000);
       
       setTimeout(() => {
-        fbq('trackCustom', 'PremiumSuccess_HighEngagement', {
-          engagement_duration: 60,
-          customer_quality: 'high_value',
-          conversion_confidence: 'very_high'
-        });
+       
       }, 60000);
     }
 
@@ -1147,12 +1180,7 @@ return match ? decodeURIComponent(match[2]) : null;
     // Advanced Error Handling
     window.addEventListener('error', (e) => {
       if (typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'JavaScript_Error', {
-          error_message: e.message,
-          error_source: e.filename,
-          error_line: e.lineno,
-          page_type: 'confirmation'
-        });
+
       }
       console.error('STREAM Error:', e);
     });
@@ -1169,7 +1197,7 @@ return match ? decodeURIComponent(match[2]) : null;
       };
       
       if (typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'Session_End', sessionData);
+       
       }
       
       // Try to send final beacon
