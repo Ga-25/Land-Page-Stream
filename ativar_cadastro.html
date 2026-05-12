@@ -2,6 +2,14 @@
 <html lang="pt-BR">
 <head>
   <meta name="facebook-domain-verification" content="noq2idorwao5vkrxvo3aukf29ese03" />
+
+  <script>
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+</script>
   
   <!-- FURION POWER - Enhanced fbclid + _fbp capture -->
   <script>
@@ -11,7 +19,7 @@
       const params = new URLSearchParams(window.location.search);
       const fbclid = params.get('fbclid');
       
-      if (fbclid && !document.cookie.includes('_fbc')) {
+      if (fbclid) {
         const fbc = `fb.1.${Date.now()}.${fbclid}`;
         document.cookie = `_fbc=${encodeURIComponent(fbc)}; path=/; max-age=${60*60*24*365*2}; SameSite=None; Secure`;
         localStorage.setItem('_fbc', fbc);
@@ -21,8 +29,8 @@
 
 
       // Enhanced _fbp generation se não existir
-      if (!document.cookie.includes('_fbp')) {
-        const fbp = `fb.1.${Date.now()}.${Math.random().toString(36).substring(2, 15)}`;
+      if (!getCookie('_fbp')) {
+        const fbp = `fb.1.${Date.now()}.${Math.floor(Math.random() * 9999999999)}`;
         document.cookie = `_fbp=${fbp}; path=/; max-age=${60*60*24*90}; SameSite=None; Secure`;
         localStorage.setItem('_fbp', fbp);
         console.log('🔥 FBP gerado:', fbp);
@@ -67,9 +75,7 @@
   // TRIPLE PIXEL POWER
   // ✅ FURION POWER - ADVANCED MATCHING SUPREMO
 fbq('init', '2435493903541379', {
-  // Enhanced matching automático
-  automatic_matching: true,
-  autoConfig: true
+
 }, {
   agent: 'plat'
 });
@@ -84,9 +90,6 @@ function initEnhancedMatching() {
     color_depth: screen.colorDepth,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     language: navigator.language,
-    platform: navigator.platform,
-    device_memory: navigator.deviceMemory || 'unknown',
-    connection_type: navigator.connection ? navigator.connection.effectiveType : 'unknown'
   };
   
   // Salvar para uso posterior
@@ -401,8 +404,6 @@ fbq('track', 'PageView');
               _fbc: getCookie('_fbc') || '',
               registration_time: Date.now(),
               user_agent: navigator.userAgent,
-              screen_resolution: `${screen.width}x${screen.height}`,
-              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
               shared_event_id: sharedEventId // ✅ SALVAR PARA SINCRONIZAÇÃO
           };
           Object.keys(userData).forEach(key => {
@@ -432,16 +433,12 @@ fbq('track', 'PageView');
           status: 'completed',
           order_id: formData.transacao,
           // ✅ DADOS ENRIQUECIDOS PARA MELHOR TARGETING:
-          predicted_ltv: 150.00,
           customer_segment: 'high_value',
           acquisition_channel: formData.utm_source,
           conversion_quality: 'premium',
           engagement_time: Math.round(engagementTime / 1000),
           form_completion_speed: Math.round((Date.now() - window.formStartTime) / 1000),
           device_type: window.innerWidth <= 768 ? 'mobile' : 'desktop',
-          traffic_quality: calculateTrafficQuality(formData),
-          user_intent_score: calculateIntentScore(),
-          conversion_probability: 0.95
       }, {
           eventID: sharedEventId // ✅ ID SINCRONIZADO
       });
@@ -452,7 +449,7 @@ fbq('track', 'PageView');
 
 
       // ✅ FURION POWER - CAPI COM DADOS PUROS (SEM HASH NO FRONT)
-      await Promise.allSettled(CONFIG.capiEndpoints.map(async (endpoint) => {
+      const capiResults = await Promise.allSettled(CONFIG.capiEndpoints.map(async (endpoint) => {
           // Telefone normalizado para CAPI
           // ✅ TELEFONE NORMALIZADO MELHORADO PARA CAPI
           let phoneForCAPI = formData.whatsapp.replace(/\D/g, '');
@@ -488,8 +485,9 @@ fbq('track', 'PageView');
                   phone: phoneForCAPI,
                   fbp: getCookie('_fbp') || '',
                   fbc: getCookie('_fbc') || '',
-                  external_id: (formData.email.trim().toLowerCase() + phoneForCAPI),
-                  client_user_agent: navigator.userAgent,
+                  external_id: btoa(
+  formData.email.trim().toLowerCase() + "|" + phoneForCAPI
+),
               },
               custom_data: {
                   content_ids: [formData.transacao],
@@ -648,7 +646,6 @@ fbq('track', 'PageView');
         setTimeout(() => {
           const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
           console.log(`📱 WhatsApp ${index + 1}:`, url);
-           //window.open(url, '_blank');
         }, index * 1000); // Delay entre envios
       });
     }
@@ -694,8 +691,7 @@ fbq('track', 'PageView');
               window.formInteractions++; // Counter
               
               // Facebook tracking
-              if (typeof fbq !== 'undefined') {
-              }
+
           });
 
           input.addEventListener('input', debounce(() => {
@@ -744,14 +740,6 @@ fbq('track', 'PageView');
 
 
 
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-
-
-
     // FURION POWER - Enhanced A/B Testing
     function initABTest() {
       const variant = localStorage.getItem('furion_ab_variant') || (Math.random() < 0.33 ? 'A' : Math.random() < 0.66 ? 'B' : 'C');
@@ -783,9 +771,7 @@ fbq('track', 'PageView');
 
 
 
-      // Track A/B test view
-      if (typeof fbq !== 'undefined') {
-      }
+
 
 
 
@@ -867,8 +853,7 @@ fbq('track', 'PageView');
         input.addEventListener('focus', () => {
           if (!formStarted) {
             formStarted = true;
-            if (typeof fbq !== 'undefined') {
-            }
+
           }
           resetIdle();
         });
@@ -955,9 +940,7 @@ fbq('track', 'PageView');
       
       document.body.appendChild(popup);
       
-      // Track abandonment alert
-      if (typeof fbq !== 'undefined') {
-      }
+
       
       document.getElementById('furion-close').onclick = () => {
         popup.style.animation = 'fadeOut 0.3s ease forwards';
@@ -967,9 +950,7 @@ fbq('track', 'PageView');
       document.getElementById('furion-complete').onclick = () => {
         popup.remove();
         document.getElementById('submitBtn').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        if (typeof fbq !== 'undefined') {
-        }
+
       };
       
       // Auto remove after 15 seconds
