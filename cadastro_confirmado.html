@@ -7,21 +7,37 @@
 
 <!-- FURION POWER - Enhanced fbclid capture for confirmation page -->
   <script>
-  (function() {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const fbclid = params.get('fbclid');
       
-      if (fbclid) {
-        const fbc = `fb.1.${Date.now()}.${fbclid}`;
-        document.cookie = `_fbc=${encodeURIComponent(fbc)}; path=/; max-age=${60*60*24*365*2}; SameSite=None; Secure`;
-        localStorage.setItem('_fbc', fbc);
-        console.log('🔥 FBC confirmação capturado:', fbc);
-      }
-    } catch(e) {
-      console.warn('Erro captura fbclid confirmação:', e);
+function getCookie(name) {
+  const match = document.cookie.match(
+    new RegExp('(^| )' + name + '=([^;]+)')
+  );
+
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
+(function () {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const fbclid = params.get('fbclid');
+
+    // NÃO recriar se já existir
+    if (fbclid) {
+      const fbc = `fb.1.${Date.now()}.${fbclid}`;
+
+      document.cookie =
+        `_fbc=${encodeURIComponent(fbc)}; path=/; max-age=${60 * 60 * 24 * 365 * 2}; SameSite=None; Secure`;
+
+      localStorage.setItem('_fbc', fbc);
+
+      console.log('🔥 FBC criado:', fbc);
     }
-  })();
+
+  } catch (e) {
+    console.warn('Erro _fbc:', e);
+  }
+})();
+
   </script>
 
 
@@ -42,17 +58,11 @@
   // ✅ MESMO PIXEL ID DO ATIVAR_CADASTRO
   // ✅ FURION POWER - ADVANCED MATCHING SINCRONIZADO
 fbq('init', '2435493903541379', {
-    // Enhanced matching automático
-    advancedMatching: true
-}, {
-    agent: 'plat'
+  em: localStorage.getItem('user_email') || '',
+  ph: localStorage.getItem('user_phone') || ''
 });
  // StreamForce Principal
 
-function getCookie(name) {
-const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-return match ? decodeURIComponent(match[2]) : null;
-}
 
 (function() {
   const fbpCookie = getCookie('_fbp');
@@ -230,12 +240,11 @@ return match ? decodeURIComponent(match[2]) : null;
       ]
     };
 
-  window.furionEventId = localStorage.getItem('furion_event_id');
 
     // ✅ FURION POWER - MESMA FUNÇÃO DO ATIVAR_CADASTRO
     function generateSyncEventId(eventType = 'purchase') {
         const timestamp = Date.now();
-        const random = Math.random().toString(36).substring(2, 9);
+        const random = Math.random().toString(36).substring(2, 10);
         
         // Recuperar base ID salvo no registro
         let baseId = localStorage.getItem('furion_base_event') || 
@@ -288,8 +297,6 @@ return match ? decodeURIComponent(match[2]) : null;
       initCountdown();
       initSuccessTracking();
       initAutoActions();
-      addVisualEffects();
-      initConfetti();
       firePurchaseEvent(); // ✅ Chama função async corretamente
       
       console.log('🔥 FURION TV - Página de confirmação carregada');
@@ -301,23 +308,32 @@ return match ? decodeURIComponent(match[2]) : null;
 
 
     // ✅ FURION POWER - PURCHASE EVENT CORRIGIDO (ASYNC)
-    async function firePurchaseEvent() {
-        if (localStorage.getItem('furion_purchase_fired')) {
-            console.log('🔥 Purchase já disparado. Sistema anti-duplicação ativo.');
-            return;
-        }
+async function firePurchaseEvent() {
+
+    if (typeof fbq === 'undefined') {
+        console.warn('fbq não disponível');
+        return;
+    }
+
+    const purchaseEventId =
+      localStorage.getItem('purchase_event_id') ||
+      generateSyncEventId('purchase');
+
+    const lastPurchaseEvent =
+      localStorage.getItem('furion_purchase_fired');
+
+    if (lastPurchaseEvent === purchaseEventId) {
+        console.log('🔥 Purchase duplicado bloqueado.');
+        return;
+    }
 
     
 
-        if (typeof fbq === 'undefined') {
-            console.warn('fbq não disponível');
-            return;
-        }
+
 
     
 
-        // ✅ FURION POWER - EVENT ID SINCRONIZADO COM REGISTRATION
-        const purchaseEventId = generateSyncEventId('purchase');
+
         const transactionId = localStorage.getItem("transacao") || `FTV_${Date.now()}`;
 
     
@@ -340,9 +356,11 @@ return match ? decodeURIComponent(match[2]) : null;
             content_type: 'subscription',
             content_category: 'streaming_service',
             value: 25.00,
-            currency: 'BRL'
+            currency: 'BRL',
+            num_items: 1,
+            order_id: transactionId
         }, {
-            eventID: purchaseEventId // ✅ ID SINCRONIZADO
+            eventID: purchaseEventId
         });
 
     
@@ -406,12 +424,17 @@ return match ? decodeURIComponent(match[2]) : null;
                         phone: phoneForCAPI,
                         fbp: fbp,
                         fbc: fbc,
-                        external_id: (userData.email.trim().toLowerCase() + phoneForCAPI),
+                        external_id:
+        userData.email || phoneForCAPI
+    ? `${userData.email.trim().toLowerCase()}_${phoneForCAPI}`
+    : undefined,
                         client_user_agent: navigator.userAgent
                     },
                     custom_data: {
                         value: 25.00,
-                        currency: "BRL"
+                        currency: "BRL",
+                        num_items: 1,
+                        order_id: transactionId
                     }
                 });
             }));
@@ -505,7 +528,11 @@ return match ? decodeURIComponent(match[2]) : null;
 
 
 
-      return await response.json();
+      const result = await response.json();
+
+console.log('📡 CAPI RESPONSE:', result);
+
+return result;
     }
 
 
@@ -626,7 +653,7 @@ return match ? decodeURIComponent(match[2]) : null;
 
 
 
-      let totalSeconds = 3 * 60; // 3 minutes
+      let totalSeconds = 5 * 60; // 3 minutes
       
       const timer = setInterval(() => {
         const minutes = Math.floor(totalSeconds / 60);
@@ -736,9 +763,17 @@ return match ? decodeURIComponent(match[2]) : null;
 
 
 
-      initNetworkMonitoring();
-      initPerformanceMonitoring();
-      initBehaviorTracking();
+      if (typeof initNetworkMonitoring === 'function') {
+        initNetworkMonitoring();
+      }
+
+      if (typeof initPerformanceMonitoring === 'function') {
+        initPerformanceMonitoring();
+      }
+
+      if (typeof initBehaviorTracking === 'function') {
+        initBehaviorTracking();
+      }
     }
 
 

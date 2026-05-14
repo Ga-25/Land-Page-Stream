@@ -4,11 +4,15 @@
   <meta name="facebook-domain-verification" content="noq2idorwao5vkrxvo3aukf29ese03" />
 
   <script>
-    function getCookie(name) {
+    window.getCookie = function(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
       if (parts.length === 2) return parts.pop().split(';').shift();
     }
+
+    window.secureAttr = location.protocol === 'https:'
+  ? '; SameSite=None; Secure'
+  : '';
 </script>
   
   <!-- FURION POWER - Enhanced fbclid + _fbp capture -->
@@ -21,7 +25,11 @@
       
       if (fbclid) {
         const fbc = `fb.1.${Date.now()}.${fbclid}`;
-        document.cookie = `_fbc=${encodeURIComponent(fbc)}; path=/; max-age=${60*60*24*365*2}; SameSite=None; Secure`;
+        const secureAttr = location.protocol === 'https:' 
+  ? '; SameSite=None; Secure'
+  : '';
+
+document.cookie = `_fbc=${encodeURIComponent(fbc)}; path=/; max-age=${60*60*24*365*2}${secureAttr}`;
         localStorage.setItem('_fbc', fbc);
         console.log('🔥 FBC capturado:', fbc);
       }
@@ -29,11 +37,14 @@
 
 
       // Enhanced _fbp generation se não existir
-      if (!getCookie('_fbp')) {
+      const existingFbp = getCookie('_fbp');
+
+      if (existingFbp) {
+        localStorage.setItem('_fbp', existingFbp);
+      } else {
         const fbp = `fb.1.${Date.now()}.${Math.floor(Math.random() * 9999999999)}`;
-        document.cookie = `_fbp=${fbp}; path=/; max-age=${60*60*24*90}; SameSite=None; Secure`;
+        document.cookie = `_fbp=${fbp}; path=/; max-age=${60*60*24*90}${secureAttr}`;
         localStorage.setItem('_fbp', fbp);
-        console.log('🔥 FBP gerado:', fbp);
       }
 
 
@@ -333,7 +344,7 @@ fbq('track', 'PageView');
           try {
               localStorage.setItem('furion_base_event', baseId);
               sessionStorage.setItem('furion_base_event', baseId);
-              document.cookie = `furion_event_base=${baseId}; path=/; max-age=7200; SameSite=None; Secure`;
+              document.cookie = `furion_event_base=${baseId}; path=/; max-age=7200${secureAttr}`;
               console.log('🔥 Base Event ID criado:', baseId);
           } catch(e) {
               console.warn('Erro ao salvar base ID:', e);
@@ -341,7 +352,7 @@ fbq('track', 'PageView');
       }
       
       // Gerar event ID específico
-      const eventId = baseId.replace('base_', `${eventType}_`);
+      const eventId = `${eventType}_${timestamp}_${random}`;
       console.log(`🎯 Event ID gerado: ${eventId}`);
       return eventId;
     }
@@ -351,8 +362,12 @@ fbq('track', 'PageView');
       // FURION POWER - Enhanced Form Handler
       async function handleFormSubmit(e) {
       e.preventDefault();
-      if (!checkSubmissionRate()) return;
 
+      const btn = document.getElementById('submitBtn');
+
+        try {
+
+            if (!checkSubmissionRate()) return;
 
 
       const inputs = document.querySelectorAll('.form-input[required]');
@@ -370,7 +385,7 @@ fbq('track', 'PageView');
 
 
 
-      const btn = document.getElementById('submitBtn');
+      
       btn.classList.add('loading');
       btn.disabled = true;
 
@@ -392,6 +407,10 @@ fbq('track', 'PageView');
 
       // ✅ FURION POWER - EVENT ID SINCRONIZADO ULTRA-ROBUSTO
       const sharedEventId = generateSyncEventId('reg');
+
+      const purchaseEventId = sharedEventId.replace('reg_', 'purchase_');
+
+localStorage.setItem('purchase_event_id', purchaseEventId);
       
       // Salvar dados no localStorage
       try {
@@ -449,7 +468,7 @@ fbq('track', 'PageView');
 
 
       // ✅ FURION POWER - CAPI COM DADOS PUROS (SEM HASH NO FRONT)
-      const capiResults = await Promise.allSettled(CONFIG.capiEndpoints.map(async (endpoint) => {
+      await Promise.allSettled(CONFIG.capiEndpoints.map(async (endpoint) => {
           // Telefone normalizado para CAPI
           // ✅ TELEFONE NORMALIZADO MELHORADO PARA CAPI
           let phoneForCAPI = formData.whatsapp.replace(/\D/g, '');
@@ -485,8 +504,12 @@ fbq('track', 'PageView');
                   phone: phoneForCAPI,
                   fbp: getCookie('_fbp') || '',
                   fbc: getCookie('_fbc') || '',
-                  external_id: btoa(
-  formData.email.trim().toLowerCase() + "|" + phoneForCAPI
+external_id: btoa(
+  unescape(
+    encodeURIComponent(
+      formData.email.trim().toLowerCase() + "|" + phoneForCAPI
+    )
+  )
 ),
               },
               custom_data: {
@@ -507,10 +530,21 @@ fbq('track', 'PageView');
 
 
 
-      // WhatsApp e redirecionamento
-      await sendMultiWhatsApp(formData);
-      showSuccessAndRedirect();
-  }
+await sendMultiWhatsApp(formData);
+showSuccessAndRedirect();
+
+} catch(error) {
+
+    console.error('❌ Erro no cadastro:', error);
+
+    notify('Erro ao processar cadastro. Tente novamente.', 'error');
+
+} finally {
+
+    btn.classList.remove('loading');
+    btn.disabled = false;
+}
+}
 
     // FURION POWER - Helper Functions
     function generateTransactionId() {
@@ -608,11 +642,20 @@ fbq('track', 'PageView');
 
     async function sendToCAPI(endpoint, payload) {
       try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+            const controller = new AbortController();
+
+            const timeout = setTimeout(() => {
+                controller.abort();
+            }, 8000);
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            });
+
+            clearTimeout(timeout);
         const result = await response.json();
         console.log(`📡 CAPI ${endpoint}:`, result);
         return result;
@@ -687,12 +730,11 @@ fbq('track', 'PageView');
       
       // ✅ FURION POWER - FORM TRACKING CONSOLIDADO
       document.querySelectorAll('.form-input').forEach(input => {
-          input.addEventListener('focus', () => {
-              window.formInteractions++; // Counter
+        input.addEventListener('input', debounce(() => {
               
               // Facebook tracking
 
-          });
+          }));
 
           input.addEventListener('input', debounce(() => {
               window.formInteractions++; // Counter
@@ -877,13 +919,16 @@ fbq('track', 'PageView');
       // Enhanced exit intent
       let mouseY = 0;
       document.addEventListener('mousemove', (e) => { mouseY = e.clientY; });
-      document.addEventListener('mouseleave', () => {
+      if (window.innerWidth > 768) {
+
+document.addEventListener('mouseleave', () => {
         if (mouseY < 80 && formStarted && !exitShown && fieldsFilled > 0) {
           exitShown = true;
           showAbandonmentPopup('🚨 ESPERE! Oferta especial!', 
             'Antes de sair... Complete seu cadastro AGORA e ganhe 30% de desconto no primeiro mês!');
         }
       });
+}
 
 
 
@@ -1143,12 +1188,16 @@ fbq('track', 'PageView');
     notify('Cadastro realizado com sucesso!', 'success');
 
     setTimeout(() => {
-        window.location.href = CONFIG.successPage;
+        const currentParams = window.location.search;
+window.location.href = CONFIG.successPage + currentParams;
     }, 2500);
     }
 
     window.addEventListener('scroll', () => {
-    const scroll = (window.scrollY / document.body.scrollHeight) * 100;
+    const scroll = (
+  window.scrollY / 
+  (document.body.scrollHeight - window.innerHeight)
+) * 100;
 
     if (scroll > 50 && !window.scroll50) {
         window.scroll50 = true;
@@ -1159,29 +1208,6 @@ fbq('track', 'PageView');
     }, 30000);
 
 
-    function showPopup(title, text){
-    if(document.querySelector('.pop')) return;
-    const el = document.createElement('div');
-    el.className='pop';
-    el.innerHTML = `
-        <div class="pop-card">
-        <h3>${title}</h3>
-        <p>${text}</p>
-        <div class="actions">
-            <button class="final" id="finishNow">✅ Finalizar cadastro</button>
-            <button class="close" id="closePop">Fechar</button>
-        </div>
-        </div>`;
-    document.body.appendChild(el);
-    // ✅ LINHA REMOVIDA
-    document.getElementById('closePop').onclick = ()=> el.remove();
-    document.getElementById('finishNow').onclick = ()=>{
-        el.remove();
-        document.getElementById('submitBtn').scrollIntoView({behavior:'smooth', block:'center'});
-    };
-    // Auto remove em 10s
-    setTimeout(()=>{ el.remove(); }, 10000);
-    }
 
   </script>
 </body>
