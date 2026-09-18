@@ -4,7 +4,7 @@
 
    
 
-<!-- Meta Pixel Code (PRINCIPAL + BACKUP) -->
+<!-- Meta Pixel -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -15,17 +15,19 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 
-fbq('init', '1443325817705768'); // Pixel principal
-fbq('init', '4090331514445241'); // Pixel backup
+fbq('init', '1443325817705768');
 fbq('track', 'PageView');
 </script>
+
 <noscript>
-  <img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=1443325817705768&ev=PageView&noscript=1"/>
-  <img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=4090331514445241&ev=PageView&noscript=1"/>
+  <img
+    height="1"
+    width="1"
+    style="display:none"
+    src="https://www.facebook.com/tr?id=1443325817705768&ev=PageView&noscript=1"
+  />
 </noscript>
-<!-- End Meta Pixel Code -->
+<!-- End Meta Pixel -->
 
 
   <meta charset="UTF-8" />
@@ -172,252 +174,386 @@ fbq('track', 'PageView');
     </div>
   </div>
 
-  <script>
-    const CONFIG = {
-    whatsappNumber: '5577999066302'
+<script>
+
+const PURCHASE_CONFIG = {
+
+  capiEndpoint:
+    'https://capi-api-gabriel.onrender.com/event',
+
+  value: 25.00,
+
+  currency: 'BRL'
+
+};
+
+
+/* =========================================================
+   COOKIE
+========================================================= */
+
+function getCookie(name) {
+
+  const match = document.cookie.match(
+    new RegExp(
+      '(^|;\\s*)' +
+      name +
+      '=([^;]*)'
+    )
+  );
+
+  return match
+    ? decodeURIComponent(match[2])
+    : '';
+
+}
+
+
+/* =========================================================
+   PURCHASE EVENT ID
+========================================================= */
+
+function getPurchaseEventId() {
+
+  let eventId =
+    sessionStorage.getItem(
+      'sf_purchase_event_id'
+    );
+
+
+  if (!eventId) {
+
+    eventId =
+      'purchase_' +
+      Date.now() +
+      '_' +
+      Math.random()
+        .toString(36)
+        .slice(2, 10);
+
+
+    sessionStorage.setItem(
+      'sf_purchase_event_id',
+      eventId
+    );
+
+  }
+
+
+  return eventId;
+
+}
+
+
+/* =========================================================
+   PURCHASE
+========================================================= */
+
+async function firePurchaseEvent() {
+
+  /*
+    Proteção contra reload da mesma visita.
+  */
+
+  if (
+    sessionStorage.getItem(
+      'sf_purchase_sent'
+    ) === '1'
+  ) {
+
+    console.log(
+      'Purchase já enviado nesta sessão.'
+    );
+
+    return;
+
+  }
+
+
+  if (
+    typeof fbq === 'undefined'
+  ) {
+
+    console.warn(
+      'Meta Pixel não disponível.'
+    );
+
+    return;
+
+  }
+
+
+  const eventId =
+    getPurchaseEventId();
+
+
+  const fbp =
+    localStorage.getItem('_fbp') ||
+    getCookie('_fbp') ||
+    '';
+
+
+  const fbc =
+    localStorage.getItem('_fbc') ||
+    getCookie('_fbc') ||
+    '';
+
+
+  const name =
+    localStorage.getItem(
+      'user_name'
+    ) || '';
+
+
+  const email =
+    localStorage.getItem(
+      'user_email'
+    ) || '';
+
+
+  const phone =
+    localStorage.getItem(
+      'user_phone'
+    ) || '';
+
+
+  /* -----------------------------------------
+     Browser Pixel
+  ----------------------------------------- */
+
+  fbq(
+    'track',
+    'Purchase',
+    {
+
+      content_ids:
+        ['streamforce-premium'],
+
+      content_name:
+        'StreamForce Premium',
+
+      content_type:
+        'subscription',
+
+      value:
+        PURCHASE_CONFIG.value,
+
+      currency:
+        PURCHASE_CONFIG.currency
+
+    },
+
+    {
+      eventID: eventId
+    }
+  );
+
+
+  console.log(
+    'Purchase Browser:',
+    eventId
+  );
+
+
+  /* -----------------------------------------
+     CAPI
+  ----------------------------------------- */
+
+  const payload = {
+
+    event_name:
+      'Purchase',
+
+    event_id:
+      eventId,
+
+    event_source_url:
+      window.location.href,
+
+    user: {
+
+      name,
+
+      email,
+
+      phone,
+
+      fbp,
+
+      fbc
+
+    },
+
+    custom_data: {
+
+      content_ids:
+        ['streamforce-premium'],
+
+      content_name:
+        'StreamForce Premium',
+
+      content_type:
+        'subscription',
+
+      value:
+        PURCHASE_CONFIG.value,
+
+      currency:
+        PURCHASE_CONFIG.currency
+
+    }
+
   };
 
-  document.addEventListener('DOMContentLoaded', function() {
 
-    // NÃO inicialize o Pixel aqui — ele já foi iniciado no <head>.
-    // Apenas chame os inits da página:
-    initFinalPixelEvents();   // Dispara Purchase uma única vez
-    initCountdown();
-    initSuccessTracking();
-    initAutoActions();
-    addVisualEffects();
-    initConfetti();
-    firePurchaseEvent();
-  });
+  try {
 
-function initFinalPixelEvents(){
-  if(typeof fbq==='undefined') return;
-  // NÃO dispare aqui o Purchase sem eventID — o Purchase real será disparado
-  // mais abaixo com um event_id gerado e também enviado para a CAPI.
-  fbq('trackCustom','Registration_Success',{
-    eventsource:'successpage',conversion_complete:true,timestamp:new Date().toISOString()
-  });
-  setTimeout(()=>{ fbq('trackCustom','SuccessPageEngagement',{timeonpage:30}); }, 30000);
-}
+    const response =
+      await fetch(
+        PURCHASE_CONFIG.capiEndpoint,
+        {
 
+          method: 'POST',
 
-    function initCountdown(){
-      const minutesEl=document.getElementById('minutes');
-      const secondsEl=document.getElementById('seconds');
-      if(!minutesEl||!secondsEl) return;
-      let total=5*60;
-      const t=setInterval(()=>{
-        const m=Math.floor(total/60), s=total%60;
-        minutesEl.textContent=String(m).padStart(2,'0');
-        secondsEl.textContent=String(s).padStart(2,'0');
-        if(total<=0){ clearInterval(t); showAccessReady(); }
-        total--;
-      },1000);
-    }
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
 
-    function showAccessReady(){
-      const timerSection=document.querySelector('.access-timer');
-      const timerTitle=timerSection.querySelector('.timer-title');
-      const countdown=timerSection.querySelector('.countdown-display');
-      const msg=timerSection.querySelector('.timer-message');
-      timerTitle.innerHTML='✅ Dados de acesso enviados!';
-      countdown.innerHTML='<div>📱 Verifique seu WhatsApp agora mesmo!</div>';
-      msg.innerHTML='Se não recebeu, use o contato emergencial abaixo.';
-      timerSection.style.background='rgba(34,197,94,.18)';
-      timerSection.style.borderColor='rgba(34,197,94,.5)';
-      timerSection.style.transform='scale(1.02)';
-      setTimeout(()=>{ timerSection.style.transform=''; }, 280);
-      if(typeof fbq!=='undefined'){ fbq('trackCustom','AccessTimerComplete'); }
-    }
+          body:
+            JSON.stringify(payload),
 
-    function initSuccessTracking(){
-      let time=0;
-      const it=setInterval(()=>{
-        time+=10;
-        if(time===60 && typeof fbq!=='undefined') fbq('trackCustom','SuccessPage1min');
-        if(time===120 && typeof fbq!=='undefined') fbq('trackCustom','SuccessPage2min');
-      },10000);
+          keepalive: true
 
-      let scrolled=false;
-      window.addEventListener('scroll',()=>{
-        if(!scrolled){ scrolled=true; if(typeof fbq!=='undefined') fbq('trackCustom','SuccessPageScroll'); }
-      });
-
-      document.querySelectorAll('a').forEach(a=>{
-        a.addEventListener('click',e=>{
-          if(typeof fbq!=='undefined'){
-            fbq('trackCustom','SuccessPageLink_Click',{link_url:a.href,link_text:a.textContent.trim()});
-          }
-        });
-      });
-
-      window.addEventListener('beforeunload',()=>{ clearInterval(it); if(typeof fbq!=='undefined') fbq('trackCustom','SuccessPageExit'); });
-    }
-
-    function initAutoActions(){
-      setTimeout(sendWhatsAppNotification, 10000);
-      setTimeout(()=>{ if(confirm('Página aberta há muito tempo. Deseja atualizar?')) location.reload(); }, 1800000);
-      // Mobile tweaks
-      if(window.innerWidth<=768){
-        const vp=document.querySelector('meta[name="viewport"]');
-        if(vp) vp.setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-        setTimeout(()=> toast('💡 Adicione esta página aos favoritos!', 'info'), 8000);
-      }
-      // Share button (se suportado)
-      if(navigator.share){
-        const btn=document.createElement('button');
-        btn.textContent='📤 Compartilhar Sucesso';
-        Object.assign(btn.style,{position:'fixed',top:'16px',right:'16px',background:'linear-gradient(45deg,#22c55e,#16a34a)',color:'#fff',border:'none',padding:'10px 14px',borderRadius:'999px',fontWeight:'800',cursor:'pointer',zIndex:'1000',boxShadow:'0 8px 24px rgba(0,0,0,.25)'});
-        btn.onclick=async()=>{
-          try{
-            await navigator.share({title:'StreamForce - Cadastro Ativado!',text:'Acabei de ativar minha assinatura StreamForce Premium! 🎉',url:location.href});
-            if(typeof fbq!=='undefined') fbq('trackCustom','SuccessPageShared');
-          }catch(e){ console.log('Share cancelado',e); }
-        };
-        document.body.appendChild(btn);
-      }
-      // Conectividade
-      function checkConnection(){
-        if(navigator.onLine) toast('✅ Conexão estável detectada','success');
-        else toast('⚠️ Sem conexão. Verifique sua internet.','error');
-      }
-      setInterval(checkConnection, 30000);
-      window.addEventListener('online', ()=>toast('✅ Conexão restabelecida','success'));
-      window.addEventListener('offline',()=>toast('⚠️ Sem conexão','error'));
-      // Performance
-      window.addEventListener('load',()=>{
-        const ms = Math.round(performance.now());
-        if(typeof fbq!=='undefined') fbq('trackCustom','SuccessPageLoad_Time',{loadtimems:ms});
-        console.log(`📊 Página carregada em ${ms}ms`);
-      });
-      // Easter egg (Konami)
-      const seq=[38,38,40,40,37,39,37,39,66,65]; let typed=[];
-      document.addEventListener('keydown',e=>{
-        typed.push(e.keyCode); if(typed.length>seq.length) typed.shift();
-        if(typed.length===seq.length && typed.every((v,i)=>v===seq[i])){
-          document.body.style.animation='rainbow 2s infinite';
-          toast('🎮 Modo Especial Ativado!', 'success');
-          if(typeof fbq!=='undefined') fbq('trackCustom','EasterEggActivated');
-          setTimeout(()=>{ document.body.style.animation=''; }, 8000);
         }
-      });
-      const style=document.createElement('style');
-      style.textContent='@keyframes rainbow{0%{filter:hue-rotate(0)}100%{filter:hue-rotate(360deg)}}';
-      document.head.appendChild(style);
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        `CAPI HTTP ${response.status}`
+      );
+
     }
 
-    function sendWhatsAppNotification(){
-      const message = `🎉 STREAMFORCE - CADASTRO FINALIZADO COM SUCESSO
-✅ Status: Cadastro ativado e confirmado
-⏰ Data/Hora: ${new Date().toLocaleString('pt-BR')}
-📱 Próximo passo: Aguardar dados de acesso
 
-🎬 Informações importantes:
-• Seus dados de acesso serão enviados em até 5 minutos
-• Você receberá tutorial de instalação completo
-• Suporte técnico 24/7 disponível
-• Qualidade 4K garantida
+    const result =
+      await response.json();
 
-🚀 Bem-vindo à StreamForce Premium!`;
-      const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-      console.log('WhatsApp URL (automática):', url);
-      // Opcional: abrir automaticamente
-      // window.open(url,'_blank');
+
+    if (result.ok === false) {
+
+      throw new Error(
+        result.error ||
+        'Meta CAPI rejeitou o evento.'
+      );
+
     }
 
-    function addVisualEffects(){
-      // partículas flutuantes
-      const cont=document.querySelector('.container');
-      setInterval(()=>{
-        const p=document.createElement('div');
-        p.style.cssText=`position:absolute;width:4px;height:4px;background:${['#FFD700','#22c55e','#3b82f6'][Math.floor(Math.random()*3)]};border-radius:50%;opacity:.7;left:${Math.random()*100}%;bottom:-10px;animation:floatUp 4s linear forwards;pointer-events:none`;
-        cont.appendChild(p);
-        setTimeout(()=>{ p.remove(); }, 4000);
-      }, 2000);
-      const st=document.createElement('style');
-      st.textContent='@keyframes floatUp{0%{transform:translateY(0) rotate(0);opacity:.7}100%{transform:translateY(-100vh) rotate(360deg);opacity:0}}';
-      document.head.appendChild(st);
-      setTimeout(()=> toast('🎉 Bem-vindo à StreamForce Premium!'), 2500);
-      setTimeout(()=> toast('📱 Fique atento ao WhatsApp!', 'info'), 150000);
-      document.addEventListener('visibilitychange',()=>{
-        if(typeof fbq!=='undefined') fbq('trackCustom', document.hidden ? 'SuccessPageHidden' : 'SuccessPageVisible');
-      });
-    }
 
-    function toast(message, type='success'){
-      const t=document.createElement('div');
-      t.className='toast';
-      t.style.background = type==='success' ? '#0e4223' : (type==='info' ? '#111826' : '#7a0912');
-      t.textContent=message;
-      document.body.appendChild(t);
-      setTimeout(()=>{ t.style.animation='out .25s ease forwards'; setTimeout(()=>t.remove(), 250); }, 3800);
-    }
+    /*
+      Só marcamos como enviado
+      depois que a CAPI respondeu
+      corretamente.
+    */
 
-    function initConfetti(){
-      const colors=['#FFD700','#22c55e','#3b82f6','#ff4500','#9C27B0'];
-      document.querySelectorAll('.confetti').forEach((c,i)=>{
-        c.style.left = `${(i*9)%100}%`;
-        c.style.animationDelay = `${(i%5)*.25}s`;
-        c.style.background = colors[i%colors.length];
-      });
-    }
+    sessionStorage.setItem(
+      'sf_purchase_sent',
+      '1'
+    );
 
-function firePurchaseEvent(){
-  // evita disparo múltiplo (por reload)
-  if(localStorage.getItem('purchase_fired')) {
-    console.log('Purchase já disparado (purchase_fired). Pulando.');
-    return;
+
+    localStorage.setItem(
+      'sf_last_purchase_event_id',
+      eventId
+    );
+
+
+    localStorage.setItem(
+      'sf_last_purchase_time',
+      String(Date.now())
+    );
+
+
+    console.log(
+      'Purchase CAPI confirmado:',
+      eventId
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      'Erro no Purchase CAPI:',
+      error
+    );
+
+    /*
+      O Pixel já foi enviado.
+      Não marcamos como concluído para
+      permitir uma nova tentativa da CAPI.
+    */
+
   }
 
-  if (typeof fbq === 'undefined') {
-    console.warn('fbq não disponível — Purchase não será disparado no client.');
-    return;
-  }
-
-  const eventId = 'purchase_' + Date.now() + '_' + Math.floor(Math.random()*100000);
-
-  // Pixel (cliente)
-  fbq('track', 'Purchase', {
-    content_ids: ['streamforce-premium'],
-    content_name: 'StreamForce Premium',
-    content_type: 'subscription',
-    value: 1.00,         // opcional, mas útil para otimização
-    currency: 'BRL'
-  }, { eventID: eventId });
-
-  // salva flag para evitar reenvio se a pessoa atualizar a página
-  try { localStorage.setItem('purchase_fired', eventId); } catch(e){}
-
-  // CAPI -> envia para seu server (server.js irá hashear user_data)
-  fetch("https://capi-api-gabriel.onrender.com/event", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      event_name: "Purchase",
-      event_id: eventId,
-      event_source_url: window.location.href,
-      user: {
-        name: localStorage.getItem("user_name") || "",
-        email: localStorage.getItem("user_email") || "",
-        phone: localStorage.getItem("user_phone") || "",
-        fbp: localStorage.getItem("_fbp") || "",
-        fbc: localStorage.getItem("_fbc") || ""
-      },
-      custom_data: {
-        content_ids: ["streamforce-premium"],
-        content_name: "StreamForce Premium",
-        content_type: "subscription",
-        value: 25.00,
-        currency: "BRL"
-      }
-    })
-  })
-  .then(r => r.json())
-  .then(j => console.log('📡 CAPI Purchase resp', j))
-  .catch(e => console.error('❌ CAPI Purchase error', e));
 }
 
 
-  </script>
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+document.addEventListener(
+  'DOMContentLoaded',
+  function() {
+
+    /*
+      Seus outros elementos visuais continuam
+      funcionando normalmente.
+    */
+
+    if (
+      typeof initCountdown ===
+      'function'
+    ) {
+      initCountdown();
+    }
+
+
+    if (
+      typeof initAutoActions ===
+      'function'
+    ) {
+      initAutoActions();
+    }
+
+
+    if (
+      typeof addVisualEffects ===
+      'function'
+    ) {
+      addVisualEffects();
+    }
+
+
+    if (
+      typeof initConfetti ===
+      'function'
+    ) {
+      initConfetti();
+    }
+
+
+    /*
+      Purchase real.
+    */
+
+    firePurchaseEvent();
+
+  }
+);
+
+</script>
 </body>
 </html>

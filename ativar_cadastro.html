@@ -4,7 +4,7 @@
 
    
 
-<!-- Meta Pixel Code (PRINCIPAL + BACKUP) -->
+<!-- Meta Pixel -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -15,17 +15,19 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 
-fbq('init', '1443325817705768'); // Pixel principal
-fbq('init', '4090331514445241'); // Pixel backup
+fbq('init', '1443325817705768');
 fbq('track', 'PageView');
 </script>
+
 <noscript>
-  <img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=1443325817705768&ev=PageView&noscript=1"/>
-  <img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=4090331514445241&ev=PageView&noscript=1"/>
+  <img
+    height="1"
+    width="1"
+    style="display:none"
+    src="https://www.facebook.com/tr?id=1443325817705768&ev=PageView&noscript=1"
+  />
 </noscript>
-<!-- End Meta Pixel Code -->
+<!-- End Meta Pixel -->
 
    
   <meta charset="UTF-8" />
@@ -213,374 +215,506 @@ fbq('track', 'PageView');
   </div>
 
   <script>
-    // CONFIG
-    const CONFIG = {
-      whatsappNumber: '5577999066302', // altere para seu número
-      pixelIds: ['1443325817705768', '4090331514445241'],  // seu Pixel ID
-      successPage: 'cadastro_confirmado.html'
-    };
+const CONFIG = {
+  whatsappNumber: '5577999066302',
+  capiEndpoint: 'https://capi-api-gabriel.onrender.com/event',
+  successPage: 'cadastro_confirmado.html',
+  pixelId: '1443325817705768',
+  value: 25.00,
+  currency: 'BRL'
+};
 
 
-    // Inicialização
-    document.addEventListener('DOMContentLoaded', () => {
-      const eventId = 'evt_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+/* =========================================================
+   COOKIE / TRACKING
+========================================================= */
 
-  // Pixel já está carregado no <head> (evitamos re-init para não duplicar PageView).
-  if (typeof fbq === 'undefined') {
-    console.warn('Meta Pixel não carregado ainda.');
-  }
+function getCookie(name) {
+  const match = document.cookie.match(
+    new RegExp('(^|;\\s*)' + name + '=([^;]*)')
+  );
 
-      initForm();
-      initProgressBar();
-      initValidation();
-      initABTest();
-      initAbandonmentRecovery();
-      console.log('🚀 Página de cadastro StreamForce carregada');
-      console.log('📊 Pixel IDs:', CONFIG.pixelIds);
-      console.log('📱 WhatsApp:', CONFIG.whatsappNumber);
-    });
-
-    function initForm(){
-      const form = document.getElementById('registrationForm');
-      form.addEventListener('submit', handleFormSubmit);
-
-      const inputs = form.querySelectorAll('.form-input');
-      inputs.forEach((input) => {
-        input.addEventListener('input', () => { validateField(input); updateProgress(); maybeInitiateCheckout(); });
-        input.addEventListener('focus', () => { input.style.transform='translateY(-1px)'; });
-        input.addEventListener('blur',  () => { input.style.transform=''; });
-      });
-    }
-
-
-
-function getCookie(name){
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
+  return match ? decodeURIComponent(match[2]) : '';
 }
 
-    let initiatedCheckout = false;
-    function maybeInitiateCheckout(){
-      if(!initiatedCheckout && typeof fbq!=='undefined'){
-        const filled = Array.from(document.querySelectorAll('.form-input')).some(i=>i.value.trim()!=='');
-        if(filled){
-          initiatedCheckout = true;
-          fbq('track', 'InitiateCheckout', {content_name:'StreamForce Registration'});
-        }
-      }
-    }
 
-    function initProgressBar(){ setTimeout(updateProgress, 300); }
-
-    function updateProgress(){
-      const inputs = document.querySelectorAll('.form-input[required]');
-      let ok = 0;
-      inputs.forEach(i => {
-        if(i.value.trim()!=='' && !i.classList.contains('invalid')) ok++;
-      });
-      const pct = Math.round((ok/inputs.length)*100);
-      const fill = document.getElementById('progress-fill');
-      const label = document.getElementById('progress-percent');
-      fill.style.width = pct + '%';
-      label.textContent = pct + '%';
-      if(pct===100){ fill.style.background='linear-gradient(90deg, #22c55e, #16a34a)'; }
-      else if(pct>=66){ fill.style.background='linear-gradient(90deg, #3b82f6, #2563eb)'; }
-      else { fill.style.background='linear-gradient(90deg, #f59e0b, #fb923c)'; }
-    }
-
-    function initValidation(){
-      // Máscara para WhatsApp (BR)
-      const w = document.getElementById('whatsapp');
-      w.addEventListener('input', (e)=>{
-        let v = e.target.value.replace(/\D/g,'');
-        if (v.length>11) v = v.slice(0,11);
-        if (v.length>=11)      v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
-        else if (v.length>=7)  v = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, '($1) $2-$3');
-        else if (v.length>=3)  v = v.replace(/^(\d{2})(\d{0,5})$/, '($1) $2');
-        else if (v.length>=1)  v = v.replace(/^(\d{0,2})$/, '($1');
-        e.target.value = v;
-      });
-    }
-
-    function validateField(input){
-      const value = input.value.trim();
-      let valid = true;
-      let msg = '';
-      if(input.name==='nome'){
-        if(value.length<2){ valid=false; msg='Nome deve ter pelo menos 2 caracteres'; }
-        else if(!/^[a-zA-ZÀ-ÿ\s]+$/.test(value)){ valid=false; msg='Use apenas letras'; }
-        else if(value.split(' ').length<2){ valid=false; msg='Digite nome e sobrenome'; }
-      }
-      if(input.name==='email'){
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if(!re.test(value)){ valid=false; msg='Digite um email válido'; }
-      }
-      if(input.name==='whatsapp'){
-        const re = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;
-        if(!re.test(value)){ valid=false; msg='Formato válido: (11) 99999-9999'; }
-      }
-      input.classList.remove('valid','invalid');
-      if(value!==''){ input.classList.add(valid?'valid':'invalid'); }
-      const err = document.getElementById(input.name+'-error');
-      if(err){ err.textContent = msg; err.style.display = msg ? 'block' : 'none'; }
-      return valid;
-    }
-
-async function handleFormSubmit(e){
-  e.preventDefault();
-
-  if(!checkSubmissionRate()) return;
-
-  const inputs = document.querySelectorAll('.form-input[required]');
-  let ok = true;
-  inputs.forEach(i=>{ if(!validateField(i) || i.value.trim()==='') ok = false; });
-  if(!ok){ notify('Por favor, corrija os erros no formulário.', 'error'); return; }
-
-  const btn = document.getElementById('submitBtn');
-  btn.classList.add('loading'); btn.disabled = true;
-
-  const data = {
-    nome: document.getElementById('nome').value.trim(),
-    email: document.getElementById('email').value.trim(),
-    whatsapp: document.getElementById('whatsapp').value.trim(),
-    transacao: document.getElementById('transacao').value.trim() || 'N/A',
-    timestamp: new Date().toISOString(),
-    source: 'StreamForce Registration'
-  };
-
-    // ✅ Salva no localStorage para a página de confirmação e para CAPI
+function captureFacebookTracking() {
   try {
-    localStorage.setItem("user_name", data.nome);
-    localStorage.setItem("user_email", data.email);
-    localStorage.setItem("user_phone", data.whatsapp);
-    localStorage.setItem("transacao", data.transacao);
-    localStorage.setItem("_fbp", getCookie("_fbp") || "");
-    localStorage.setItem("_fbc", getCookie("_fbc") || "");
-  } catch(e){}
+    const params = new URLSearchParams(window.location.search);
 
-  // event_id para deduplicação
-  const regEventId = 'reg_' + Date.now() + '_' + Math.random().toString(36).slice(2,9);
+    const fbclid = params.get('fbclid');
 
-  // ✅ Pixel (já vai para principal + backup)
-  if (typeof fbq !== 'undefined') {
-    fbq('track', 'CompleteRegistration', {
+    let fbp = getCookie('_fbp');
+    let fbc = getCookie('_fbc');
+
+    /*
+      Se veio de anúncio Meta e existe fbclid,
+      criamos o _fbc.
+    */
+    if (fbclid) {
+      const newFbc = `fb.1.${Date.now()}.${fbclid}`;
+
+      document.cookie =
+        `_fbc=${encodeURIComponent(newFbc)}; ` +
+        `Max-Age=${60 * 60 * 24 * 730}; ` +
+        `Path=/; SameSite=Lax`;
+
+      localStorage.setItem('_fbc', newFbc);
+
+      fbc = newFbc;
+    }
+
+    /*
+      Se o navegador ainda não possui _fbp,
+      criamos um identificador.
+    */
+    if (!fbp) {
+      fbp =
+        `fb.1.${Date.now()}.` +
+        `${Math.floor(Math.random() * 10000000000)}`;
+
+      document.cookie =
+        `_fbp=${fbp}; ` +
+        `Max-Age=${60 * 60 * 24 * 90}; ` +
+        `Path=/; SameSite=Lax`;
+    }
+
+    if (fbp) {
+      localStorage.setItem('_fbp', fbp);
+    }
+
+    if (fbc) {
+      localStorage.setItem('_fbc', fbc);
+    }
+
+    return { fbp, fbc };
+
+  } catch (error) {
+    console.warn('Erro ao capturar tracking:', error);
+
+    return {
+      fbp: localStorage.getItem('_fbp') || '',
+      fbc: localStorage.getItem('_fbc') || ''
+    };
+  }
+}
+
+
+/* =========================================================
+   INITIATE CHECKOUT
+========================================================= */
+
+function fireInitiateCheckout() {
+
+  if (sessionStorage.getItem('sf_ic_fired') === '1') {
+    return;
+  }
+
+  if (typeof fbq === 'undefined') {
+    return;
+  }
+
+  const eventId =
+    'ic_' +
+    Date.now() +
+    '_' +
+    Math.random().toString(36).slice(2, 10);
+
+  fbq(
+    'track',
+    'InitiateCheckout',
+    {
+      content_name: 'StreamForce Premium',
+      content_category: 'Registration',
+      content_ids: ['streamforce-premium'],
+      value: CONFIG.value,
+      currency: CONFIG.currency
+    },
+    {
+      eventID: eventId
+    }
+  );
+
+  sessionStorage.setItem('sf_ic_fired', '1');
+  sessionStorage.setItem('sf_ic_event_id', eventId);
+
+  console.log('InitiateCheckout enviado:', eventId);
+}
+
+
+/* =========================================================
+   COMPLETE REGISTRATION
+========================================================= */
+
+function getRegistrationEventId() {
+
+  let eventId =
+    sessionStorage.getItem('sf_registration_event_id');
+
+  if (!eventId) {
+
+    eventId =
+      'reg_' +
+      Date.now() +
+      '_' +
+      Math.random().toString(36).slice(2, 10);
+
+    sessionStorage.setItem(
+      'sf_registration_event_id',
+      eventId
+    );
+  }
+
+  return eventId;
+}
+
+
+async function fireCompleteRegistration(formData) {
+
+  if (typeof fbq === 'undefined') {
+    throw new Error('Meta Pixel não carregado.');
+  }
+
+  const eventId = getRegistrationEventId();
+
+  const tracking = captureFacebookTracking();
+
+  /*
+    Guarda os dados para a página final.
+  */
+  localStorage.setItem(
+    'user_name',
+    formData.nome
+  );
+
+  localStorage.setItem(
+    'user_email',
+    formData.email
+  );
+
+  localStorage.setItem(
+    'user_phone',
+    formData.whatsapp
+  );
+
+  localStorage.setItem(
+    'registration_time',
+    String(Date.now())
+  );
+
+  if (tracking.fbp) {
+    localStorage.setItem(
+      '_fbp',
+      tracking.fbp
+    );
+  }
+
+  if (tracking.fbc) {
+    localStorage.setItem(
+      '_fbc',
+      tracking.fbc
+    );
+  }
+
+
+  /* -----------------------------------------
+     Browser Pixel
+  ----------------------------------------- */
+
+  fbq(
+    'track',
+    'CompleteRegistration',
+    {
       content_name: 'Ativação de Cadastro',
       content_category: 'Registration',
-      content_ids: [data.transacao || 'no-tx']
-    }, { eventID: regEventId });
+      content_ids: ['streamforce-premium'],
+      value: CONFIG.value,
+      currency: CONFIG.currency
+    },
+    {
+      eventID: eventId
+    }
+  );
 
-    fbq('trackCustom','Registration_Complete',{
-      customer_name: data.nome,
-      customer_email: data.email,
-      customer_phone: data.whatsapp,
-      registrationsource: 'landingpage',
-      timestamp: new Date().toISOString()
-    });
 
-    try { localStorage.setItem('last_event_id', regEventId); } catch(e){}
-  }
+  /* -----------------------------------------
+     CAPI
+  ----------------------------------------- */
 
-  // ✅ CAPI
-  fetch("https://capi-api-gabriel.onrender.com/event", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      event_name: "CompleteRegistration",
-      event_id: regEventId,
-      event_source_url: window.location.href,
-      user: {
-        name: localStorage.getItem("user_name") || data.nome,
-        email: localStorage.getItem("user_email") || data.email,
-        phone: localStorage.getItem("user_phone") || data.whatsapp,
-        fbp: localStorage.getItem("_fbp") || "",
-        fbc: localStorage.getItem("_fbc") || ""
+  const payload = {
+
+    event_name: 'CompleteRegistration',
+
+    event_id: eventId,
+
+    event_source_url: window.location.href,
+
+    user: {
+
+      name: formData.nome,
+
+      email: formData.email,
+
+      phone: formData.whatsapp,
+
+      fbp: tracking.fbp || '',
+
+      fbc: tracking.fbc || ''
+
+    },
+
+    custom_data: {
+
+      content_ids: ['streamforce-premium'],
+
+      content_name: 'Ativação de Cadastro',
+
+      content_category: 'Registration',
+
+      value: CONFIG.value,
+
+      currency: CONFIG.currency
+
+    }
+
+  };
+
+
+  const response = await fetch(
+    CONFIG.capiEndpoint,
+    {
+      method: 'POST',
+
+      headers: {
+        'Content-Type': 'application/json'
       },
-      custom_data: {
-        content_ids: [data.transacao || 'no-tx'],
-        content_name: "Ativação de Cadastro"
-      }
-    })
-  })
-  .then(r => r.json())
-  .then(j => console.log("📡 CAPI response:", j))
-  .catch(err => console.error("❌ Erro CAPI:", err));
 
-  // resto do fluxo (WhatsApp, redirect, etc.)
-  try {
-    if (typeof sendToServer === 'function') await sendToServer(data);
-    if (typeof sendToWhatsApp === 'function') await sendToWhatsApp(data);
+      body: JSON.stringify(payload),
 
-    showSuccessAndRedirect();
-  } catch(err) {
-    console.error(err);
-    notify('Erro ao processar cadastro. Tente novamente.', 'error');
-    if(btn){ btn.classList.remove('loading'); btn.disabled = false; }
+      keepalive: true
+    }
+  );
+
+
+  if (!response.ok) {
+    throw new Error(
+      `CAPI HTTP ${response.status}`
+    );
   }
+
+
+  const result = await response.json();
+
+  if (result.ok === false) {
+    throw new Error(
+      result.error || 'Erro na CAPI'
+    );
+  }
+
+
+  console.log(
+    'CompleteRegistration CAPI enviado:',
+    eventId
+  );
+
+  return eventId;
 }
 
-  // garante que o form use essa função (caso a binding anterior existisse)
-  (function(){
-    const form = document.getElementById('registrationForm') || document.getElementById('cadastroForm') || document.querySelector('form');
-    if(form){
-      try { form.removeEventListener('submit', handleFormSubmit); } catch(e){}
-      form.addEventListener('submit', handleFormSubmit);
-    }
-  })();
 
-    async function sendToServer(payload){
-      // Simula uma chamada ao servidor; substitua pela sua API se desejar.
-      await new Promise(r=>setTimeout(r, 1500));
-    }
+/* =========================================================
+   FORMULÁRIO
+========================================================= */
 
-    async function sendToWhatsApp(data){
-      const message = `🎉 STREAMFORCE - NOVO CADASTRO ATIVADO
-👤 Nome: ${data.nome}
-📧 Email: ${data.email}
-📱 WhatsApp: ${data.whatsapp}
-💳 Transação: ${data.transacao}
-⏰ Data/Hora: ${new Date().toLocaleString('pt-BR')}
-✅ Status: Cadastro ativado com sucesso!
-🔥 Próximo passo: Enviar dados de acesso
+document.addEventListener(
+  'DOMContentLoaded',
+  function() {
 
-Enviado automaticamente pelo sistema StreamForce`;
-      const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-      // Abra em nova aba (opcional): window.open(url, '_blank');
-      console.log('WhatsApp URL:', url);
+    captureFacebookTracking();
+
+
+    const form =
+      document.getElementById(
+        'registrationForm'
+      );
+
+    if (!form) {
+      console.error(
+        'registrationForm não encontrado.'
+      );
+
+      return;
     }
 
-    function showSuccessAndRedirect(){
-      const btn = document.getElementById('submitBtn');
-      const check = document.getElementById('successCheckmark');
-      check.classList.add('show');
-      btn.classList.remove('loading');
-      btn.textContent = 'Cadastro ativado!';
-      btn.style.background = 'linear-gradient(45deg,#22c55e,#16a34a)';
-      const fill = document.getElementById('progress-fill');
-      const label = document.getElementById('progress-percent');
-      fill.style.width='100%'; label.textContent='100%';
-      fill.style.background='linear-gradient(90deg, #22c55e, #16a34a)';
-      notify('Cadastro ativado com sucesso! Redirecionando...', 'success');
-      setTimeout(()=>{ window.location.href = CONFIG.successPage; }, 3000);
-    }
 
-    function notify(message, type='info'){
-      const n = document.createElement('div');
-      n.className = 'notice';
-      n.style.background = type==='error' ? '#7a0912' : (type==='success' ? '#0e4223' : '#111826');
-      n.textContent = message;
-      document.body.appendChild(n);
-      setTimeout(()=>{
-        n.style.animation='slideOut .25s ease forwards';
-        setTimeout(()=>{ n.remove(); }, 260);
-      }, 4200);
-    }
+    /*
+      InitiateCheckout no primeiro contato
+      real com o formulário.
+    */
+    form.querySelectorAll('input').forEach(
+      input => {
 
-    // Anti-spam / cooldown
-    let submitAttempts = 0;
-    const maxAttempts = 3;
-    const cooldown = 60000;
-    function checkSubmissionRate(){
-      submitAttempts++;
-      if(submitAttempts>maxAttempts){
-        notify('Muitas tentativas. Aguarde 1 minuto.', 'error');
-        setTimeout(()=>{ submitAttempts = 0; }, cooldown);
-        return false;
+        input.addEventListener(
+          'focus',
+          fireInitiateCheckout,
+          { once: true }
+        );
+
       }
-      return true;
-    }
+    );
 
-    // A/B Test simples
-    function initABTest(){
-      const variant = localStorage.getItem('ab_variant') || (Math.random()<0.5 ? 'A' : 'B');
-      localStorage.setItem('ab_variant', variant);
-      if(variant==='B'){
-        const slot = document.getElementById('ab-counter-slot');
-        slot.innerHTML = `<div class="ab-counter">
-          🔴 <strong><span id="online-count">847</span></strong> pessoas online agora —
-          apenas <strong><span id="spots-left">12</span></strong> vagas restantes hoje!
-        </div>`;
-        const btn = document.getElementById('submitBtn');
-        btn.style.background = 'linear-gradient(45deg,#ef4444,#b91c1c)';
-        btn.textContent = '🔥 ATIVAR AGORA - ÚLTIMAS VAGAS!';
 
-        const online = document.getElementById('online-count');
-        const spots  = document.getElementById('spots-left');
-        setInterval(()=>{
-          const cur = parseInt(online.textContent,10);
-          const change = Math.floor(Math.random()*10)-5;
-          const next = Math.max(800, Math.min(900, cur+change));
-          online.textContent = next;
-        }, 15000);
-        setInterval(()=>{
-          const cur = parseInt(spots.textContent,10);
-          if(cur>3 && Math.random()<0.3){ spots.textContent = cur-1; }
-        }, 45000);
+    /*
+      Usa UM único listener para o submit.
+    */
+    form.addEventListener(
+      'submit',
+      async function(e) {
 
-        if (typeof fbq!=='undefined'){ fbq('trackCustom','ABTestView',{variant}); }
-      }
-    }
+        e.preventDefault();
 
-    // Recovery de abandono / idle / exit-intent
-    function initAbandonmentRecovery(){
-      let started = false;
-      let idleTimer;
-      let exitShown = false;
 
-      const resetIdle = ()=>{
-        clearTimeout(idleTimer);
-        idleTimer = setTimeout(()=>{
-          if(started) showPopup('⏰ Não perca sua vaga!','Você estava quase finalizando o cadastro. Complete agora e garanta sua assinatura!');
-        }, 180000); // 3 min
-      };
+        const btn =
+          document.getElementById(
+            'submitBtn'
+          );
 
-      document.querySelectorAll('.form-input').forEach(i=>{
-        i.addEventListener('focus', ()=>{
-          if(!started){
-            started = true;
-            if(typeof fbq!=='undefined') fbq('trackCustom','Form_Started');
-          }
-          resetIdle();
-        });
-        i.addEventListener('input', resetIdle);
-      });
 
-      let mouseY = 0;
-      document.addEventListener('mousemove', (e)=>{ mouseY = e.clientY; });
-      document.addEventListener('mouseleave', ()=>{
-        if(mouseY<80 && started && !exitShown){
-          exitShown = true;
-          showPopup('🚨 Espere!','Você está saindo sem finalizar! Complete seu cadastro e ganhe 20% de desconto no primeiro mês!');
+        const nome =
+          document.getElementById(
+            'nome'
+          ).value.trim();
+
+
+        const email =
+          document.getElementById(
+            'email'
+          ).value.trim();
+
+
+        const whatsapp =
+          document.getElementById(
+            'whatsapp'
+          ).value.trim();
+
+
+        /*
+          Validação básica.
+        */
+
+        if (nome.length < 2) {
+
+          notify(
+            'Digite seu nome completo.',
+            'error'
+          );
+
+          return;
         }
-      });
 
-      resetIdle();
-    }
 
-    function showPopup(title, text){
-      if(document.querySelector('.pop')) return;
-      const el = document.createElement('div');
-      el.className='pop';
-      el.innerHTML = `
-        <div class="pop-card">
-          <h3>${title}</h3>
-          <p>${text}</p>
-          <div class="actions">
-            <button class="final" id="finishNow">✅ Finalizar cadastro</button>
-            <button class="close" id="closePop">Fechar</button>
-          </div>
-        </div>`;
-      document.body.appendChild(el);
-      if (typeof fbq!=='undefined') fbq('trackCustom','FormAbandonmentAlert');
-      document.getElementById('closePop').onclick = ()=> el.remove();
-      document.getElementById('finishNow').onclick = ()=>{
-        el.remove();
-        document.getElementById('submitBtn').scrollIntoView({behavior:'smooth', block:'center'});
-      };
-      // Auto remove em 10s
-      setTimeout(()=>{ el.remove(); }, 10000);
-    }
+        if (
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            .test(email)
+        ) {
 
-  </script>
+          notify(
+            'Digite um e-mail válido.',
+            'error'
+          );
+
+          return;
+        }
+
+
+        const phoneDigits =
+          whatsapp.replace(/\D/g, '');
+
+
+        if (
+          phoneDigits.length < 10 ||
+          phoneDigits.length > 13
+        ) {
+
+          notify(
+            'Digite um WhatsApp válido.',
+            'error'
+          );
+
+          return;
+        }
+
+
+        try {
+
+          btn.classList.add('loading');
+
+          btn.disabled = true;
+
+
+          await fireCompleteRegistration({
+            nome,
+            email,
+            whatsapp
+          });
+
+
+          /*
+            Pequeno tempo visual para o usuário
+            perceber que o cadastro foi concluído.
+          */
+
+          const success =
+            document.getElementById(
+              'successCheckmark'
+            );
+
+          if (success) {
+            success.classList.add('show');
+          }
+
+
+          /*
+            Redirecionamento.
+          */
+
+          setTimeout(
+            () => {
+
+              window.location.href =
+                CONFIG.successPage;
+
+            },
+            800
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            'Erro no CompleteRegistration:',
+            error
+          );
+
+
+          notify(
+            'Não foi possível concluir o cadastro. Tente novamente.',
+            'error'
+          );
+
+
+          btn.classList.remove(
+            'loading'
+          );
+
+          btn.disabled = false;
+
+        }
+
+      }
+    );
+
+  }
+);
+</script>
 </body>
 </html>
